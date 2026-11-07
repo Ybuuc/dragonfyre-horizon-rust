@@ -115,3 +115,28 @@ python .\\scripts\\apply-dragonfyre-native.py
 ```
 
 Если `python` не найден, использовать `py -3 .\\scripts\\apply-dragonfyre-native.py`. Возможны явные `--workspace`, `--mixins`, `--output-parent`. Это проверка **применения** mixins и соответствия исходников, **не сборка бинарника, не валидация мира и не clean-clone Horizon**. Скрипт уже зафиксирован в GitHub, но ещё не запускался на пользовательской машине.
+
+## VERIFIED применение mixins; подготовлена контролируемая сборка Horizon (8 ноября 2026)
+
+Из вывода PowerShell пользователя: `python scripts/apply-dragonfyre-native.py` вернул `PASS: mixins applied; 8 engine source files match GitHub`; манифест ожидал 8 injections и 3 modules. Новый рабочий каталог:
+
+```text
+outputs/native-reproduction/dragonfyre-native-bi4vueka/applied
+```
+
+Логи/receipt рядом: `apply.log` и `apply-report.json`. Скрипт применил текущий tracked source к **подготовленному локальному** Horizon и локальному mixins executable; это не полный clean bootstrap из внешнего исходного upstream.
+
+### Первая компиляция этого generated tree
+
+Новый `scripts/build-dragonfyre-native.py` параметризован (не требует путей старых чатов). Использует локальные проверенные Rust/MinGW, существующий offline Cargo cache `work/native-cargo` и target cache `work/native-game-target`. Низкая параллельность `--jobs 1` для 8 ГБ ОЗУ. **Пока не выполнено**, возможны ошибки нативной линковки или cache dependency; при ошибке использовать `build-debug.log` и сохранённый JSON, не трогая save/profile. На диске появится дополнительная копия .exe лишь в случае success. Сборка может менять файлы в общем Cargo target cache, но не исходные деревья, миры или Launcher.
+
+Из корня проекта в PowerShell с уже заданными `$rust` и `$mingw`:
+
+```powershell
+git pull --ff-only
+$applied = Join-Path (Get-Location) 'outputs/native-reproduction/dragonfyre-native-bi4vueka/applied'
+python .\\scripts\\build-dragonfyre-native.py --applied $applied --rust-bin $rust --mingw-bin $mingw --dry-run
+python .\\scripts\\build-dragonfyre-native.py --applied $applied --rust-bin $rust --mingw-bin $mingw
+```
+
+При результате `PASS` выводит SHA-256 `horizon-client-debug.exe`, сохраняет `build-debug.json` и `build-debug.log` рядом с `apply-report.json`. Это ещё не тест игры и не релизная оптимизированная сборка. До реального прогона не считать успешным.
