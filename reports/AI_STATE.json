@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "project": "Cisco's Fantasy Medieval RPG [Dragonfyre] — native Rust / Horizon",
+  "repository": "Ybuuc/dragonfyre-horizon-rust",
+  "verified_from": "PowerShell outputs reported by user on 2026-11-08; GitHub connector source check",
+  "quest_engine": {
+    "version": "0.4.0-dev",
+    "isolated_clean_clone": {
+      "status": "passed",
+      "git_revision": "d441a705d7d4a3d480f784f48f9cfb52f1d11e4e",
+      "unit_tests_passed": 34,
+      "unit_tests_failed": 0,
+      "cargo_flags": [
+        "--locked",
+        "--offline"
+      ],
+      "toolchain": "rustc/cargo 1.99.1 x86_64-pc-windows-gnu"
+    }
+  },
+  "native_integration": {
+    "run_id": "dragonfyre-native-bi4vueka",
+    "mixins": {
+      "status": "ok",
+      "injections": 8,
+      "modules": 3,
+      "engine_files_matched": 8
+    },
+    "debug_build": {
+      "status": "ok",
+      "exit_code": 0,
+      "binary_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
+      "hash_verified": true,
+      "size_mib_approx": 278.92,
+      "profile": "debug",
+      "evidence": "User-verified build-debug.json and local SHA-256"
+    },
+    "launch_verification": "not_verified",
+    "release_build": "not_verified"
+  },
+  "stage10": {
+    "gameplay_e2e": "not_verified",
+    "survival_first_json": "not_verified",
+    "survival_second_json": "not_verified"
+  },
+  "known_blockers": [
+    "Native Horizon and horizon-mixins clean-source bootstrap not yet verified",
+    "Horizon Offline Launcher gameplay test of newly compiled debug client not yet verified",
+    "Windows audio 0xc0000008 unresolved; tests have used muted configuration",
+    "Original Dragonfyre complete content and 458 other quests not ported/verified",
+    "27 local untracked work directories not yet fully classified; do not delete"
+  ],
+  "next_task": "Verify isolated launch and gameplay of the compiled native Horizon debug binary without modifying the existing Dragonfyre profile; continue Stage10 survival E2E.",
+  "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1"
+}
