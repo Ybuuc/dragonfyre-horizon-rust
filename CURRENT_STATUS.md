@@ -98,3 +98,20 @@ PASS: standalone quest engine tests passed.
 Добавлен CI workflow [quest-engine-tests.yml](.github/workflows/quest-engine-tests.yml) для автономного пакета Rust. Выполнение и статус GitHub Actions требуют отдельной проверки.
 
 Добавлен read-only для игрового профиля скрипт [scripts/test-clean-clone-engine.ps1](scripts/test-clean-clone-engine.ps1) для независимой проверки ядра из приватного GitHub checkout. Пока не запускался; при удачном тесте временный clone удаляется (при ошибке сохраняется).
+
+## VERIFIED: автономное ядро собрано и протестировано из чистого клона GitHub (вывод пользователя, 8 ноября 2026)
+
+`scripts/test-clean-clone-engine.ps1` выполнил `git clone --depth 1 --single-branch --branch main` приватного репозитория в отдельную папку `%TEMP%/dragonfyre-clean-checkout-867472306a3c462496d6b4a58852f887/repo`. Коммит клона: **`d441a705d7d4a3d480f784f48f9cfb52f1d11e4e`**. Отдельно заданы `CARGO_HOME`, `CARGO_TARGET_DIR`, `CARGO_NET_OFFLINE=true`, использован уже установленный Rust/Cargo 1.99.1 Windows GNU. Тесты:
+
+```text
+Compiling dragonfyre_quests_engine v0.4.0-dev
+Finished test profile in 5.01s
+running 34 tests
+test result: ok. 34 passed; 0 failed; 0 ignored; finished in 0.78s
+src/main.rs: running 0 tests ... ok
+doc-tests: running 0 tests ... ok
+PASS: clean GitHub clone independently compiles and tests quest engine.
+Removed only the temporary checkout created by this test.
+```
+
+**Вывод:** `native/dragonfyre-quests/engine` воспроизводим из исходников приватного GitHub checkout **с уже установленным внешним Rust toolchain**, без прежнего локального дерева и без Cargo dependency cache. Это **не** означает воспроизводимую сборку Horizon + всех модов; stage10 E2E/игровое прохождение и аудио всё ещё открыты.
