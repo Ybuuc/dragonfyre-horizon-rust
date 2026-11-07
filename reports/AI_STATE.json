@@ -40,7 +40,29 @@
   "stage10": {
     "gameplay_e2e": "not_verified",
     "survival_first_json": "not_verified",
-    "survival_second_json": "not_verified"
+    "survival_second_json": "not_verified",
+    "local_survival_evidence": {
+      "status": "partial",
+      "checked_on": "2026-11-08",
+      "source": "outputs/native-stage-10/saved-world-verification.json",
+      "source_sha256": "7f47c968dddda254d9b3aeb974b1cc192e7f9e1f20ffb041e328ba0a27cfe99d",
+      "package_sha256": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
+      "package_hash_matches_report": true,
+      "mode": "survival",
+      "commands_enabled": false,
+      "world_seed": 9001,
+      "stored_after_restart": {
+        "champion_coin": 1,
+        "honey_glazed_ham": 32,
+        "radiant_ruby": 1,
+        "transactions": 6
+      },
+      "survival_first_json_found": false,
+      "survival_second_json_found": true,
+      "survival_resume_json_found": true,
+      "ingredients_prepared": true,
+      "current_debug_binary_link": "not_established"
+    }
   },
   "known_blockers": [
     "Native Horizon and horizon-mixins clean-source bootstrap not yet verified",
@@ -49,6 +71,33 @@
     "Original Dragonfyre complete content and 458 other quests not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Verify isolated launch and gameplay of the compiled native Horizon debug binary without modifying the existing Dragonfyre profile; continue Stage10 survival E2E.",
-  "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1"
+  "next_task": "Сверить SHA-256 актуального Debug-клиента с native_integration.debug_build.binary_sha256. Запустить именно эту сборку через Horizon Offline Launcher в отдельном тестовом мире. Зафиксировать запуск, лог и хеш, затем выполнить сценарий Issue #1.",
+  "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1",
+  "handoff": {
+    "updated_at": "2026-11-07T22:10:44.065Z",
+    "status": "PARTIAL",
+    "active_task": "Stage 10 — приёмка Survival через Horizon Offline Launcher",
+    "related_issues": [
+      "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
+      "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
+    ],
+    "work_ref": {
+      "branch": "main",
+      "commit": "fd92370dc204af9fe1660a93141fb4eb78b2f24c"
+    },
+    "completed": [
+      "Автономное Rust-ядро 0.4.0-dev проверено в чистом клоне: 34/34 unit-теста.",
+      "Применены 8 mixin-инъекций и 3 модуля. Debug Horizon собран, SHA-256 бинарника подтверждён.",
+      "Найдены локальные результаты Stage 10 после перезапуска. SHA-256 пакета совпал с отчётом."
+    ],
+    "verification": [
+      "Тесты ядра: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline.",
+      "Сводка Stage 10: 1 монета, 32 порции, 1 рубин и 6 операций. Часть ингредиентов подготовлена заранее."
+    ],
+    "blockers": [
+      "Игровой прогон не привязан к SHA-256 актуального Debug-бинарника.",
+      "Естественная добыча всех ингредиентов и полный Survival E2E остаются открыты."
+    ],
+    "next_action": "Сверить SHA-256 актуального Debug-клиента с native_integration.debug_build.binary_sha256. Запустить именно эту сборку через Horizon Offline Launcher в отдельном тестовом мире. Зафиксировать запуск, лог и хеш, затем выполнить сценарий Issue #1."
+  }
 }
