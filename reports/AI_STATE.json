@@ -89,6 +89,45 @@
       "survival_resume_json_found": true,
       "ingredients_prepared": true,
       "current_debug_binary_link": "not_established"
+    },
+    "natural_debug_run": {
+      "status": "partial",
+      "checked_at": "2026-11-07T22:57:35Z",
+      "source_commit": "06b282145e2e8b1bd23518777de41f5c7424fd5b",
+      "debug_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
+      "cisco_package_sha256": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
+      "launcher": "Horizon Offline Launcher 1.3.0 GUI Play",
+      "world": "Stage10Natural",
+      "mode": "survival",
+      "difficulty": "normal",
+      "commands_enabled": false,
+      "world_seed": 9001,
+      "normal_terrain_and_structures": true,
+      "initial_inventory_empty": true,
+      "starter_items_crafted": [
+        "spruce_planks",
+        "stick",
+        "crafting_table"
+      ],
+      "generated_tower_reached": true,
+      "natural_core_chest_position": [
+        -503,
+        103,
+        114
+      ],
+      "first_tower_entry": "player killed by a witch",
+      "divine_core_obtained": false,
+      "all_recipe_ingredients_obtained": false,
+      "ruby_crafted": false,
+      "quest_rewards_and_restart": "pending",
+      "original_parity_issue": {
+        "ingredient": "cisco_mod:arcane_apparatus",
+        "original": "returned with one more damage until broken",
+        "port": "consumed by essence recipes",
+        "apparatus_for_ruby_in_current_pack": 9,
+        "diamonds_for_apparatus_in_current_pack": 36,
+        "diamonds_for_original_reusable_apparatus": 4
+      }
     }
   },
   "known_blockers": [
@@ -98,10 +137,10 @@
     "Original Dragonfyre complete content and 458 other quests not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Повторить полный сценарий Issue #1 на Debug-клиенте с указанным SHA-256 через «Играть» в изолированном мире с обычной генерацией. Сохранить результаты добычи, крафта, наград и перезапуска и отдельно проверить добываемость всех компонентов.",
+  "next_task": "Продолжить сохранение Stage10Natural в одном изолированном каталоге на том же Debug-клиенте. Добраться до естественного сундука в башне, проверить квест ядра и сохранение награды; для приёмки Issue #1 отдельно завершить добычу всех компонентов и крафт рубина.",
   "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1",
   "handoff": {
-    "updated_at": "2026-11-07T22:31:54Z",
+    "updated_at": "2026-11-07T22:57:35Z",
     "status": "PARTIAL",
     "active_task": "Stage 10 — приёмка Survival через Horizon Offline Launcher",
     "related_issues": [
@@ -110,23 +149,26 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "54b5ef1db2c085961438c0951bef1e1943d30175"
+      "commit": "06b282145e2e8b1bd23518777de41f5c7424fd5b"
     },
     "completed": [
       "Автономное Rust-ядро 0.4.0-dev проверено в чистом клоне: 34/34 unit-теста.",
       "Применены 8 mixin-инъекций и 3 модуля. Debug Horizon собран, SHA-256 бинарника подтверждён.",
       "Найдены локальные результаты Stage 10 после перезапуска. SHA-256 пакета совпал с отчётом.",
-      "Debug Horizon с указанным SHA-256 вошёл в тестовый мир через кнопку «Играть». Журнал из трёх квестов открылся по J."
+      "Debug Horizon с указанным SHA-256 вошёл в тестовый мир через кнопку «Играть». Журнал из трёх квестов открылся по J.",
+      "Проверен запуск Stage10Natural через «Играть» на том же Debug: обычная генерация, Normal, пустой старт, команды выключены."
     ],
     "verification": [
       "Тесты ядра: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline.",
       "Сводка Stage 10: 1 монета, 32 порции, 1 рубин и 6 операций. Часть ингредиентов подготовлена заранее.",
-      "Запуск Debug проверен отдельно от прежнего прогона Stage 10. Повторный запуск тестов квестового ядра на исходниках рабочего коммита дал 34/34."
+      "Запуск Debug проверен отдельно от прежнего прогона Stage 10. Повторный запуск тестов квестового ядра на исходниках рабочего коммита дал 34/34.",
+      "Ель добыта в игре, из неё собраны доски, палки и верстак. Башня достигнута пешком, подтверждён естественный сундук."
     ],
     "blockers": [
       "Прежний прогон крафта, выдачи наград и сохранения Stage 10 не привязан к этому Debug-бинарнику.",
-      "Естественная добыча всех ингредиентов и полный Survival E2E остаются открыты."
+      "Естественная добыча всех ингредиентов и полный Survival E2E остаются открыты.",
+      "Несоответствие оригиналу: Arcane Apparatus расходуется вместо возврата с износом. Для эссенций текущий пакет требует 9 приборов и 36 алмазов вместо 1 прибора и 4 алмазов."
     ],
-    "next_action": "Повторить полный сценарий Issue #1 на Debug-клиенте с указанным SHA-256 через «Играть» в изолированном мире с обычной генерацией. Сохранить результаты добычи, крафта, наград и перезапуска и отдельно проверить добываемость всех компонентов."
+    "next_action": "Продолжить сохранение Stage10Natural в одном изолированном каталоге на том же Debug-клиенте. Добраться до естественного сундука в башне, проверить квест ядра и сохранение награды; для приёмки Issue #1 отдельно завершить добычу всех компонентов и крафт рубина."
   }
 }
