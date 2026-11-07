@@ -77,4 +77,22 @@
 
 **VERIFIED: launch + version/target info:** MSYS2 GCC `16.2.0` (`x86_64-w64-mingw32`), strip `2.47.20260726`, Rust `1.99.1` (`x86_64-pc-windows-gnu`, LLVM `23.1.1`), Cargo `1.99.1`. Временное добавление каталогов в `PATH` позволило всем четырём утилитам определяться через `Get-Command`.
 
-**NOT VERIFIED:** настоящая сборка/линковка/тесты Rust и Horizon. Добавлен `scripts/test-quest-engine.ps1` для отдельного автономного теста core engine (не запущен на ПК). Следующий шаг — получить фактический stdout и exit code Cargo тестов, затем двигаться к подготовке pinned внешних зависимостей и clean checkout.
+**VERIFIED (локальная Cargo-сборка и unit-тесты):** автономный `dragonfyre_quests_engine` `0.4.0-dev` скомпилирован с Rust/Cargo 1.99.1; 34/34 unit tests PASS. **NOT VERIFIED:** сборка всего Horizon-клиента, gameplay Stage10 и clean clone. См. запись ниже.
+
+## Автономное Rust-ядро: 34/34 теста PASSED (PowerShell пользователя, 8 ноября 2026)
+
+**VERIFIED (по предоставленному полному выводу команды):** после синхронизации `main` до `9a1edff` пользователь запустил `scripts/test-quest-engine.ps1 -RustBin "$rust" -MinGwBin "$mingw"`.
+
+```text
+Compiling dragonfyre_quests_engine v0.4.0-dev
+Finished test profile in 4.62s
+running 34 tests
+... 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.47s
+running 0 tests (src/main.rs) ... ok
+Doc-tests ... running 0 tests ... ok
+PASS: standalone quest engine tests passed.
+```
+
+`cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline`; Rust/Cargo 1.99.1; host `x86_64-pc-windows-gnu`. Проверены транзакции, ограничения, условия предметных задач, журнал и отказоустойчивость ядра. **Тесты не охватывают клиент Horizon, интегрированный сервер, GUI, Stage10 и аудио.** Отдельно проверить clean GitHub clone и пути сборки в другом каталоге.
+
+Добавлен CI workflow [quest-engine-tests.yml](.github/workflows/quest-engine-tests.yml) для автономного пакета Rust. Выполнение и статус GitHub Actions требуют отдельной проверки.
