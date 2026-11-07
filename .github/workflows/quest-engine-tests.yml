@@ -1,0 +1,37 @@
+name: Quest engine unit tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "native/dragonfyre-quests/engine/**"
+      - ".github/workflows/quest-engine-tests.yml"
+  pull_request:
+    paths:
+      - "native/dragonfyre-quests/engine/**"
+      - ".github/workflows/quest-engine-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  quest-engine:
+    name: Rust 1.99.1 / standalone quest engine
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Install pinned Rust version
+        shell: bash
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          cargo +1.99.1 --version
+          rustc +1.99.1 --version
+      - name: Offline tests (locked dependencies)
+        shell: bash
+        env:
+          CARGO_NET_OFFLINE: "true"
+        run: cargo +1.99.1 test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline
+
+# Scope: standalone quest engine only. This workflow does NOT build Horizon or run Stage10 gameplay.
