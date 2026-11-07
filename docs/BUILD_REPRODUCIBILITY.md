@@ -102,3 +102,16 @@
 ## Успешный чистый клон: только автономный движок (8 ноября 2026)
 
 Из предоставленного PowerShell вывода: в отдельном `%TEMP%` Git был клонирован из приватного `main` на commit `d441a705d7d4a3d480f784f48f9cfb52f1d11e4e`. При изолированных `CARGO_HOME`/`CARGO_TARGET_DIR` без сети `cargo test --locked --offline` собрал `dragonfyre_quests_engine v0.4.0-dev`: **34 passed, 0 failed**. Временный клон удалён его собственным скриптом. Это подтверждение чистого *исходного дерева* со сторонним установленным Rust/Cargo 1.99.1, а не полностью чистой Windows-машины и не Horizon.
+
+## Текущий следующий этап: применение нативных mixins в изолированное дерево
+
+Для обновлённой версии Dragonfyre (манифест `native/dragonfyre-quests/horizon-mixin.toml` содержит 8 injections и 3 modules) подготовлен `scripts/apply-dragonfyre-native.py`. Он не требует исторических абсолютных путей и по умолчанию использует ранее проверенные `work/native-package-pristine` и `work/mixins-target/debug/horizon-mixins.exe`. Все модовые файлы копируются из отслеживаемого `native/dragonfyre-quests/` в новую staging-папку. Результат записывается в `outputs/native-reproduction/dragonfyre-native-*/applied`, рядом `apply.log` и `apply-report.json`. Каждый запуск создаёт собственную уникальную директорию, не трогает игровые миры, профиль лаунчера и старую Stage07/09 сборку. **Папка может занимать заметное место; не удалять до проверки воспроизводимости.**
+
+Запуск из корня проекта:
+
+```powershell
+git pull --ff-only
+python .\\scripts\\apply-dragonfyre-native.py
+```
+
+Если `python` не найден, использовать `py -3 .\\scripts\\apply-dragonfyre-native.py`. Возможны явные `--workspace`, `--mixins`, `--output-parent`. Это проверка **применения** mixins и соответствия исходников, **не сборка бинарника, не валидация мира и не clean-clone Horizon**. Скрипт уже зафиксирован в GitHub, но ещё не запускался на пользовательской машине.
