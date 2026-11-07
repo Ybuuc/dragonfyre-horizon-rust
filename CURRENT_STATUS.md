@@ -96,3 +96,5 @@ PASS: standalone quest engine tests passed.
 `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline`; Rust/Cargo 1.99.1; host `x86_64-pc-windows-gnu`. Проверены транзакции, ограничения, условия предметных задач, журнал и отказоустойчивость ядра. **Тесты не охватывают клиент Horizon, интегрированный сервер, GUI, Stage10 и аудио.** Отдельно проверить clean GitHub clone и пути сборки в другом каталоге.
 
 Добавлен CI workflow [quest-engine-tests.yml](.github/workflows/quest-engine-tests.yml) для автономного пакета Rust. Выполнение и статус GitHub Actions требуют отдельной проверки.
+
+Добавлен read-only для игрового профиля скрипт [scripts/test-clean-clone-engine.ps1](scripts/test-clean-clone-engine.ps1) для независимой проверки ядра из приватного GitHub checkout. Пока не запускался; при удачном тесте временный clone удаляется (при ошибке сохраняется).
