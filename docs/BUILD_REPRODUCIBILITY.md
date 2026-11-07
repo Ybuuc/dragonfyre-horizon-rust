@@ -88,3 +88,13 @@
 ```
 
 Он запускает `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline` с output в отдельной временной директории и не меняет игровой профиль. **Скрипт создан в GitHub, но ещё не выполнялся на компьютере пользователя.**
+
+## Проверенный автономный Rust unit test (8 ноября 2026)
+
+Из вывода локального PowerShell: `scripts/test-quest-engine.ps1` успешно собрал `dragonfyre_quests_engine v0.4.0-dev` на Windows GNU и выполнил **34/34 теста, 0 ошибок**; отдельные bin- и doc-тесты запустились, но содержали ноль тестов. Использовались Cargo/Rust 1.99.1, `--locked --offline`, без сети и без запуска Horizon. Фактическая сборка заняла 4.62 секунды, unit-тесты 1.47 секунды (значения только этого запуска).
+
+**Это снимает риск непроверенной компиляции standalone ядра, но не означает, что весь Dragonfyre собирается из GitHub.** Требуется проверка отдельного clean clone и сборки всего pinned Horizon.
+
+Для повторения после клонирования: `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline`; Cargo не должен искать исходники за пределами клона для этого пакета. Крупная native сборка требует отдельного bootstrap.
+
+В GitHub добавлен [CI `.github/workflows/quest-engine-tests.yml`](../.github/workflows/quest-engine-tests.yml) с Rust 1.99.1 и offline Cargo. Проверка CI-исполнения отдельно от локальной проверки.
