@@ -34,8 +34,35 @@
       "profile": "debug",
       "evidence": "User-verified build-debug.json and local SHA-256"
     },
-    "launch_verification": "not_verified",
-    "release_build": "not_verified"
+    "launch_verification": "verified_isolated_gui_smoke",
+    "release_build": "not_verified",
+    "launch_evidence": {
+      "checked_at": "2026-11-07T22:31:54Z",
+      "source_commit": "54b5ef1db2c085961438c0951bef1e1943d30175",
+      "launcher": "Horizon Offline Launcher 1.3.0",
+      "entrypoint": "GUI Play",
+      "binary_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
+      "cisco_package_sha256": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
+      "renderer": "Vulkan",
+      "isolated_instance": true,
+      "world": "DebugHandoff",
+      "mode": "survival",
+      "test_terrain": true,
+      "joined_world": true,
+      "quest_journal_opened_with_j": true,
+      "visible_quests": 3,
+      "audio_feature": false,
+      "launcher_log": "outputs/native-reproduction/dragonfyre-native-bi4vueka/launcher-debug-smoke.log",
+      "launcher_log_sha256": "979c8959b2d70258c860da56262b925180c3410b474c2bd57e06cf6175e2e37d",
+      "quest_engine_test": {
+        "passed": 34,
+        "failed": 0,
+        "flags": [
+          "--locked",
+          "--offline"
+        ]
+      }
+    }
   },
   "stage10": {
     "gameplay_e2e": "not_verified",
@@ -66,15 +93,15 @@
   },
   "known_blockers": [
     "Native Horizon and horizon-mixins clean-source bootstrap not yet verified",
-    "Horizon Offline Launcher gameplay test of newly compiled debug client not yet verified",
+    "Stage 10 crafting, rewards and restart not yet rerun on the SHA-verified Debug client",
     "Windows audio 0xc0000008 unresolved; tests have used muted configuration",
     "Original Dragonfyre complete content and 458 other quests not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Сверить SHA-256 актуального Debug-клиента с native_integration.debug_build.binary_sha256. Запустить именно эту сборку через Horizon Offline Launcher в отдельном тестовом мире. Зафиксировать запуск, лог и хеш, затем выполнить сценарий Issue #1.",
+  "next_task": "Повторить полный сценарий Issue #1 на Debug-клиенте с указанным SHA-256 через «Играть» в изолированном мире с обычной генерацией. Сохранить результаты добычи, крафта, наград и перезапуска и отдельно проверить добываемость всех компонентов.",
   "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1",
   "handoff": {
-    "updated_at": "2026-11-07T22:10:44.065Z",
+    "updated_at": "2026-11-07T22:31:54Z",
     "status": "PARTIAL",
     "active_task": "Stage 10 — приёмка Survival через Horizon Offline Launcher",
     "related_issues": [
@@ -83,21 +110,23 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "fd92370dc204af9fe1660a93141fb4eb78b2f24c"
+      "commit": "54b5ef1db2c085961438c0951bef1e1943d30175"
     },
     "completed": [
       "Автономное Rust-ядро 0.4.0-dev проверено в чистом клоне: 34/34 unit-теста.",
       "Применены 8 mixin-инъекций и 3 модуля. Debug Horizon собран, SHA-256 бинарника подтверждён.",
-      "Найдены локальные результаты Stage 10 после перезапуска. SHA-256 пакета совпал с отчётом."
+      "Найдены локальные результаты Stage 10 после перезапуска. SHA-256 пакета совпал с отчётом.",
+      "Debug Horizon с указанным SHA-256 вошёл в тестовый мир через кнопку «Играть». Журнал из трёх квестов открылся по J."
     ],
     "verification": [
       "Тесты ядра: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline.",
-      "Сводка Stage 10: 1 монета, 32 порции, 1 рубин и 6 операций. Часть ингредиентов подготовлена заранее."
+      "Сводка Stage 10: 1 монета, 32 порции, 1 рубин и 6 операций. Часть ингредиентов подготовлена заранее.",
+      "Запуск Debug проверен отдельно от прежнего прогона Stage 10. Повторный запуск тестов квестового ядра на исходниках рабочего коммита дал 34/34."
     ],
     "blockers": [
-      "Игровой прогон не привязан к SHA-256 актуального Debug-бинарника.",
+      "Прежний прогон крафта, выдачи наград и сохранения Stage 10 не привязан к этому Debug-бинарнику.",
       "Естественная добыча всех ингредиентов и полный Survival E2E остаются открыты."
     ],
-    "next_action": "Сверить SHA-256 актуального Debug-клиента с native_integration.debug_build.binary_sha256. Запустить именно эту сборку через Horizon Offline Launcher в отдельном тестовом мире. Зафиксировать запуск, лог и хеш, затем выполнить сценарий Issue #1."
+    "next_action": "Повторить полный сценарий Issue #1 на Debug-клиенте с указанным SHA-256 через «Играть» в изолированном мире с обычной генерацией. Сохранить результаты добычи, крафта, наград и перезапуска и отдельно проверить добываемость всех компонентов."
   }
 }

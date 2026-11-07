@@ -148,3 +148,11 @@ Removed only the temporary checkout created by this test.
 - `saved-world-verification.json` фиксирует Survival с выключенными командами на seed `9001`. После рестарта записаны 1 монета чемпиона, 32 порции ветчины, 1 рубин и 6 операций.
 - Фактический SHA-256 локального `Dragonfyre-cisco_mod.hmod` совпадает с хешем пакета в отчёте. Хеши пакета и сводки сохранены в `stage10.local_survival_evidence`.
 - По [отчёту этапа](STAGE10-SURVIVAL.md), часть ингредиентов была подготовлена заранее. Не установлено, что этот прогон использовал текущий Debug-бинарник из `native_integration.debug_build`. Статус этапа остаётся `PARTIAL`. Ближайшая проверка в [Issue #1](https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1) — запуск точно идентифицированного Debug-клиента через Horizon Offline Launcher и отдельный прогон естественной добычи ингредиентов с проверкой перезапуска.
+
+## Debug — проверка запуска через лаунчер (8 ноября 2026)
+
+Сверены SHA-256 собранного и запущенного Debug-клиента. Оба совпали с отчётом сборки: `b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793`. Через кнопку «Играть» в Horizon Offline Launcher 1.3.0 клиент вошёл в отдельный тестовый мир выживания DebugHandoff на упрощённом рельефе. Загрузились оба пакета предметов. Клавиша J открыла журнал Dragonfyre с тремя заданиями. Debug собран без аудио. Сводка и хеш локального лога сохранены в [reports/AI_STATE.json](reports/AI_STATE.json).
+
+На исходниках рабочего коммита `54b5ef1` повторно выполнена команда `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline`. Результат — 34 теста прошли, 0 ошибок.
+
+Stage 10 остаётся **PARTIAL**. Следующая проверка по [Issue #1](https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1) — пройти добычу, крафт и награды с перезапуском на том же Debug-клиенте в мире с обычной генерацией. Отдельно проверить естественную добычу всех ингредиентов. [Issue #2](https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2) остаётся открытым для воспроизводимости полной сборки.
