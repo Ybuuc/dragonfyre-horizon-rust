@@ -66,3 +66,9 @@
 **UNKNOWN — compiler availability:** `gcc.exe` и `strip.exe` не обнаружены по `.../build-tools/mingw64/bin/` (оба помечены `Required=False`); другие пути, включая MSYS2, не проверены. Не делать вывод «MinGW отсутствует» по одной папке.
 
 **BLOCKER для другого ИИ:** build script использует внешний исторический путь, prepared Horizon, compiled mixins, offline Cargo cache и Stage06/08 diagnostic artifacts, отсутствующие в GitHub. Clean clone build не проходил. Подробности: [docs/BUILD_REPRODUCIBILITY.md](docs/BUILD_REPRODUCIBILITY.md).
+
+## Аудит MSYS2 — gcc/strip найдены (PowerShell пользователя, 8 ноября 2026)
+
+**VERIFIED (file exists):** `C:\\msys64\\mingw64\\bin\\gcc.exe`, `strip.exe`, `x86_64-w64-mingw32-gcc.exe` доступны в каталоге MSYS2 MinGW64. `Get-Command` ничего не вывел: в текущей PowerShell-сессии инструменты не разрешаются по PATH. Версии и способность к линковке ещё не проверялись. Повторная установка не требуется. Отсутствие в старой папке `build-tools/mingw64/bin` не является блокером само по себе.
+
+**NEXT:** проверить вывод версий и GNU target, временно установить PATH, затем устранить жёстко заданные внешние пути и проверить clean checkout без доступа к старым временным деревьям.
