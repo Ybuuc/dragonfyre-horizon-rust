@@ -58,3 +58,11 @@
 - **Не выполнено:** финальная E2E-проверка Stage 10, включая `survival-first.json` и `survival-second.json` (по проверенным путям отсутствовали).
 
 См. [Issue #2](https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2). Выше приведённые подтверждения — сравнение исходных файлов, **не успешная сборка**.
+
+## Аудит локальных prerequisites для Stage07 (пользователь, 8 ноября 2026)
+
+**VERIFIED — наличие на текущем Windows ПК:** `horizon-mixin.toml`, `engine/Cargo.toml`, `work/build_native_stage07.py`, `work/native-package-pristine/Cargo.toml`, `work/mixins-target/debug/horizon-mixins.exe`, внешняя Windows GNU `cargo.exe`. Также доступны необязательный Stage06 diagnostic harness и `stage07-build-4337axm1/applied/Cargo.toml`.
+
+**UNKNOWN — compiler availability:** `gcc.exe` и `strip.exe` не обнаружены по `.../build-tools/mingw64/bin/` (оба помечены `Required=False`); другие пути, включая MSYS2, не проверены. Не делать вывод «MinGW отсутствует» по одной папке.
+
+**BLOCKER для другого ИИ:** build script использует внешний исторический путь, prepared Horizon, compiled mixins, offline Cargo cache и Stage06/08 diagnostic artifacts, отсутствующие в GitHub. Clean clone build не проходил. Подробности: [docs/BUILD_REPRODUCIBILITY.md](docs/BUILD_REPRODUCIBILITY.md).
