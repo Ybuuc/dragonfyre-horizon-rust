@@ -119,3 +119,14 @@ Removed only the temporary checkout created by this test.
 ## Подготовлен изолированный шаг воспроизведения нативной интеграции (8 ноября 2026)
 
 В GitHub добавлен `scripts/apply-dragonfyre-native.py`: читает актуальный `native/dragonfyre-quests/horizon-mixin.toml`, принимает параметры исходного подготовленного Horizon и `horizon-mixins.exe`, применяет mixins в новую директорию `outputs/native-reproduction/dragonfyre-native-*/applied` и сравнивает generated engine с исходным по SHA-256. Старые деревья и игровые данные не перезаписываются. **Новый скрипт ещё не выполнялся на Windows; Horizon binary не собран.** После успешного применения нужно проверить build/release воспроизводимость и корректность source baseline.
+
+## VERIFIED: применение текущего нативного миксина к Horizon (PowerShell пользователя, 8 ноября 2026)
+
+Пользователь запустил `python scripts/apply-dragonfyre-native.py` после `git pull --ff-only` до `e098226`. Применение прошло: **8 инъекций, 3 модуля**, восемь исходных файлов engine в generated worktree совпали по SHA-256 с отслеживаемыми GitHub файлами.
+
+- Generated Horizon source: `outputs/native-reproduction/dragonfyre-native-bi4vueka/applied`.
+- Receipts: `outputs/native-reproduction/dragonfyre-native-bi4vueka/apply-report.json`, `apply.log`.
+- Input Horizon: `work/native-package-pristine` (локально подготовленный); mixins exe: `work/mixins-target/debug/horizon-mixins.exe` (компилирован локально).
+- **NOT VERIFIED:** сборка бинарника `horizon-client.exe` из этого generated tree; чистое воспроизведение Horizon/mixins с внешних pin-источников; запуск через Launcher; survival Stage 10.
+
+Для следующего этапа добавлен `scripts/build-dragonfyre-native.py`. Он принимает точную папку `--applied`, директории `--rust-bin` и `--mingw-bin`, использует `--locked --offline -p horizon-client --no-default-features --jobs 1`, локальные `work/native-cargo` и `work/native-game-target`, записывает build.log/report и копирует exe только при успешной сборке. **Скрипт ещё не исполнялся на Windows; компиляция Horizon не подтверждена.**
