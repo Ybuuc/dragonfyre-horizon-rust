@@ -1,0 +1,14 @@
+{
+  "template": "minecraft:rabbit_stew",
+  "max_stack_size": 16,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.farmersdelight.honey_glazed_ham"
+    },
+    "minecraft:item_model": "minecraft:rabbit_stew",
+    "minecraft:food": {
+      "nutrition": 14,
+      "saturation": 21.0
+    }
+  }
+}

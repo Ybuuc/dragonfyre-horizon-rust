@@ -1,0 +1,18 @@
+{
+  "dragonfyre_quests.dev.no_world": "Нет открытого серверного мира.",
+  "dragonfyre_quests.dev.complete": "Эксперимент: задачи этого квеста отмечены. Награды не реализованы.",
+  "dragonfyre_quests.dev.available": "Эксперимент: задание с галочкой доступно. Награды не реализованы.",
+  "dragonfyre_quests.dev.locked": "Эксперимент: сначала выполните зависимости квеста.",
+  "dragonfyre_quests.dev.changed": "Эксперимент: галочка сохранена. Награды не выдавались.",
+  "dragonfyre_quests.dev.already_completed": "Эксперимент: эта галочка уже сохранена. Повторной записи нет.",
+  "dragonfyre_quests.dev.unsupported": "Эксперимент: условия этого квеста пока не поддерживаются.",
+  "dragonfyre_quests.dev.unknown_quest": "Неизвестный ID квеста.",
+  "dragonfyre_quests.dev.unknown_task": "Этот ID задачи не принадлежит квесту.",
+  "dragonfyre_quests.dev.syntax": "Команда разработчика: dragonfyredev status QUEST или dragonfyredev checkmark QUEST TASK. ID — 16 шестнадцатеричных цифр.",
+  "dragonfyre_quests.dev.forbidden": "Для команды разработчика требуется уровень оператора 3.",
+  "dragonfyre_quests.dev.storage_failure": "Ошибка экспериментального журнала. Прогресс не сброшен; проверьте журнал игры.",
+  "dragonfyre_quests.dev.queued": "Операция поставлена в очередь серверного такта.",
+  "dragonfyre_quests.dev.claimed": "Награды уже получены.",
+  "dragonfyre_quests.dev.ready": "Задание выполнено; награды доступны.",
+  "dragonfyre_quests.dev.awaiting_items": "Требуется сдача предметов."
+}

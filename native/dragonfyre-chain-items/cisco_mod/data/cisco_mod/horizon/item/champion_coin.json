@@ -1,0 +1,10 @@
+{
+  "template": "minecraft:gold_nugget",
+  "max_stack_size": 64,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.cisco_mod.champion_coin"
+    },
+    "minecraft:item_model": "minecraft:gold_nugget"
+  }
+}

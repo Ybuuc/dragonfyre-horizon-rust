@@ -1,0 +1,10 @@
+{
+  "template": "minecraft:echo_shard",
+  "max_stack_size": 64,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.cisco_mod.divine_core"
+    },
+    "minecraft:item_model": "minecraft:echo_shard"
+  }
+}

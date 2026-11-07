@@ -1,0 +1,10 @@
+{
+  "template": "minecraft:amethyst_shard",
+  "max_stack_size": 64,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.cisco_mod.radiant_ruby"
+    },
+    "minecraft:item_model": "minecraft:amethyst_shard"
+  }
+}
