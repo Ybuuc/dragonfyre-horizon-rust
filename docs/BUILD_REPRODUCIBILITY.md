@@ -98,3 +98,7 @@
 Для повторения после клонирования: `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline`; Cargo не должен искать исходники за пределами клона для этого пакета. Крупная native сборка требует отдельного bootstrap.
 
 В GitHub добавлен [CI `.github/workflows/quest-engine-tests.yml`](../.github/workflows/quest-engine-tests.yml) с Rust 1.99.1 и offline Cargo. Проверка CI-исполнения отдельно от локальной проверки.
+
+## Успешный чистый клон: только автономный движок (8 ноября 2026)
+
+Из предоставленного PowerShell вывода: в отдельном `%TEMP%` Git был клонирован из приватного `main` на commit `d441a705d7d4a3d480f784f48f9cfb52f1d11e4e`. При изолированных `CARGO_HOME`/`CARGO_TARGET_DIR` без сети `cargo test --locked --offline` собрал `dragonfyre_quests_engine v0.4.0-dev`: **34 passed, 0 failed**. Временный клон удалён его собственным скриптом. Это подтверждение чистого *исходного дерева* со сторонним установленным Rust/Cargo 1.99.1, а не полностью чистой Windows-машины и не Horizon.
