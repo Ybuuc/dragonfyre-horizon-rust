@@ -1,7 +1,7 @@
 """Big-endian, typed NBT used by the Dragonfyre content and world fixtures."""
 from dataclasses import dataclass
 from io import BytesIO
-from struct import pack, unpack
+from struct import calcsize, pack, unpack
 
 
 @dataclass
@@ -18,7 +18,6 @@ def decode(data):
     stream = BytesIO(data)
 
     def number(fmt):
-        from struct import calcsize
         return unpack('>' + fmt, stream.read(calcsize('>' + fmt)))[0]
 
     def string():

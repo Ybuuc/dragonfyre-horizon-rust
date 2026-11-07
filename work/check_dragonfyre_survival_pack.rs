@@ -1,10 +1,4 @@
-//! Structure placement dump in the vanilla structure-placement oracle's
-//! format: full terrain generation, then decoration with structure pieces
-//! only (no placed features) for each target chunk.
-//!
-//! structure_blocks <client resource dir> <seed> <dimension> <cx,cz>...
-//! prints `chunk CX CZ`, one `y Y ID...` line per block row (256 state ids in
-//! z-major order) and `be X Y Z ID LOOTTABLE SEED` per block entity.
+//! Verify Cisco content registration, the original loot odds and natural tower generation.
 use horizon_core::position::ChunkPos;
 use horizon_world::{
     DATA_VERSION,

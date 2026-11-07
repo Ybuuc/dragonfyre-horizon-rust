@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Cisco's Fantasy Medieval RPG [Dragonfyre] — native Rust / Horizon",
   "repository": "Ybuuc/dragonfyre-horizon-rust",
-  "verified_from": "PowerShell outputs reported by user on 2026-11-08; GitHub connector source check",
+  "verified_from": "Local PowerShell + direct SHA-256 checks on 2026-11-08; GitHub connector source check",
   "quest_engine": {
     "version": "0.4.0-dev",
     "isolated_clean_clone": {
@@ -15,6 +15,19 @@
         "--offline"
       ],
       "toolchain": "rustc/cargo 1.99.1 x86_64-pc-windows-gnu"
+    },
+    "local_recheck_on_working_commit": {
+      "status": "passed",
+      "checked_at": "2026-11-08T13:30:00Z",
+      "source_commit": "55f181bff207",
+      "unit_tests_passed": 34,
+      "unit_tests_failed": 0,
+      "cargo_flags": [
+        "--manifest-path native/dragonfyre-quests/engine/Cargo.toml",
+        "--locked",
+        "--offline"
+      ],
+      "toolchain": "cargo 1.99.1 x86_64-pc-windows-gnu"
     }
   },
   "native_integration": {
@@ -30,9 +43,10 @@
       "exit_code": 0,
       "binary_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
       "hash_verified": true,
+      "hash_verified_at": "2026-11-08T13:30:00Z",
       "size_mib_approx": 278.92,
       "profile": "debug",
-      "evidence": "User-verified build-debug.json and local SHA-256"
+      "evidence": "Direct Get-FileHash on outputs/native-reproduction/dragonfyre-native-bi4vueka/horizon-client-debug.exe — MATCH"
     },
     "launch_verification": "verified_isolated_gui_smoke",
     "release_build": "not_verified",
@@ -65,33 +79,44 @@
     }
   },
   "stage10": {
-    "gameplay_e2e": "not_verified",
-    "survival_first_json": "not_verified",
-    "survival_second_json": "not_verified",
-    "local_survival_evidence": {
-      "status": "partial",
+    "gameplay_e2e": "partial",
+    "survival_first_json": "not_found",
+    "survival_second_json": "verified",
+    "survival_resume_json": "verified",
+    "package_sha256_verified": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
+    "package_sha256_verified_at": "2026-11-08T13:30:00Z",
+    "e2e_with_prepared_ingredients": {
+      "status": "PARTIAL",
+      "note": "Ingredients pre-staged; not a full natural survival run. Counts after restart verified.",
       "checked_on": "2026-11-08",
       "source": "outputs/native-stage-10/saved-world-verification.json",
-      "source_sha256": "7f47c968dddda254d9b3aeb974b1cc192e7f9e1f20ffb041e328ba0a27cfe99d",
-      "package_sha256": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
-      "package_hash_matches_report": true,
       "mode": "survival",
-      "commands_enabled": false,
+      "allow_commands": false,
       "world_seed": 9001,
+      "core_chest_position": [-503, 103, 114],
+      "core_obtained_naturally": true,
+      "other_ingredients_prepared": true,
+      "ruby_crafted": true,
+      "transactions": 6,
       "stored_after_restart": {
-        "champion_coin": 1,
-        "honey_glazed_ham": 32,
-        "radiant_ruby": 1,
-        "transactions": 6
+        "cisco_mod:champion_coin": 1,
+        "farmersdelight:honey_glazed_ham": 32,
+        "cisco_mod:radiant_ruby": 1,
+        "minecraft:crafting_table": 1
       },
-      "survival_first_json_found": false,
-      "survival_second_json_found": true,
-      "survival_resume_json_found": true,
-      "ingredients_prepared": true,
-      "current_debug_binary_link": "not_established"
+      "pending_reward_restored_after_restart": true,
+      "no_duplicate_grant": true,
+      "screenshots": [
+        "outputs/native-stage-10/01-core-in-tower-chest.png",
+        "outputs/native-stage-10/02-core-in-inventory.png",
+        "outputs/native-stage-10/03-ruby-on-workbench.png",
+        "outputs/native-stage-10/04-second-trade-awaits-restart.png",
+        "outputs/native-stage-10/05-pending-reward-restored.png",
+        "outputs/native-stage-10/06-reward-claimed-once.png"
+      ]
     },
     "natural_debug_run": {
-      "status": "partial",
+      "status": "PARTIAL",
       "checked_at": "2026-11-07T22:57:35Z",
       "source_commit": "06b282145e2e8b1bd23518777de41f5c7424fd5b",
       "debug_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
@@ -104,22 +129,20 @@
       "world_seed": 9001,
       "normal_terrain_and_structures": true,
       "initial_inventory_empty": true,
-      "starter_items_crafted": [
-        "spruce_planks",
-        "stick",
-        "crafting_table"
-      ],
+      "starter_items_crafted": ["spruce_planks", "stick", "crafting_table"],
       "generated_tower_reached": true,
-      "natural_core_chest_position": [
-        -503,
-        103,
-        114
-      ],
+      "natural_core_chest_position": [-503, 103, 114],
       "first_tower_entry": "player killed by a witch",
       "divine_core_obtained": false,
       "all_recipe_ingredients_obtained": false,
       "ruby_crafted": false,
       "quest_rewards_and_restart": "pending",
+      "stage10_natural_qa_run": {
+        "world": "Stage10Natural (work/stage10-natural-qa)",
+        "player": "DragonfyreQA",
+        "log": "work/stage10-natural-qa/game/instances/dragonfyre/logs/latest.log",
+        "result": "player killed by zombie at start; core not reached"
+      },
       "original_parity_issue": {
         "ingredient": "cisco_mod:arcane_apparatus",
         "original": "returned with one more damage until broken",
@@ -131,44 +154,48 @@
     }
   },
   "known_blockers": [
-    "Native Horizon and horizon-mixins clean-source bootstrap not yet verified",
-    "Stage 10 crafting, rewards and restart not yet rerun on the SHA-verified Debug client",
-    "Windows audio 0xc0000008 unresolved; tests have used muted configuration",
-    "Original Dragonfyre complete content and 458 other quests not ported/verified",
+    "Natural full survival E2E (no pre-staged ingredients) not yet verified end-to-end — Issue #1 open",
+    "Native Horizon and horizon-mixins clean-source bootstrap not yet verified — Issue #2 open",
+    "Windows audio 0xc0000008 unresolved; all tests used muted configuration (HORIZON_NO_AUDIO)",
+    "Arcane Apparatus consumed instead of returned with wear — recipe parity gap vs original",
+    "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Продолжить сохранение Stage10Natural в одном изолированном каталоге на том же Debug-клиенте. Добраться до естественного сундука в башне, проверить квест ядра и сохранение награды; для приёмки Issue #1 отдельно завершить добычу всех компонентов и крафт рубина.",
-  "synced_report_source": "Initial ChatGPT/GitHub record from user-provided results; future local builds can update selected fields with scripts/sync-ai-state.ps1",
+  "next_task": "Завершить полный Survival E2E без подготовленных ингредиентов: добыть все компоненты рубина в обычном выживании на том же Debug-клиенте (SHA b9740f4f), скрафтить рубин, сдать квесты и проверить сохранение после перезапуска. Это закроет приёмочный критерий Issue #1 «естественная добываемость». Параллельно — зафиксировать несоответствие Arcane Apparatus.",
+  "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
   "handoff": {
-    "updated_at": "2026-11-07T22:57:35Z",
+    "updated_at": "2026-11-08T13:30:00Z",
     "status": "PARTIAL",
-    "active_task": "Stage 10 — приёмка Survival через Horizon Offline Launcher",
+    "active_task": "Stage 10 — Issue #1: завершить полный Survival E2E без заранее подготовленного инвентаря",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "06b282145e2e8b1bd23518777de41f5c7424fd5b"
+      "commit": "PENDING_THIS_COMMIT"
     },
     "completed": [
-      "Автономное Rust-ядро 0.4.0-dev проверено в чистом клоне: 34/34 unit-теста.",
-      "Применены 8 mixin-инъекций и 3 модуля. Debug Horizon собран, SHA-256 бинарника подтверждён.",
-      "Найдены локальные результаты Stage 10 после перезапуска. SHA-256 пакета совпал с отчётом.",
-      "Debug Horizon с указанным SHA-256 вошёл в тестовый мир через кнопку «Играть». Журнал из трёх квестов открылся по J.",
-      "Проверен запуск Stage10Natural через «Играть» на том же Debug: обычная генерация, Normal, пустой старт, команды выключены."
+      "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
+      "Debug binary SHA-256 верифицирован прямым Get-FileHash: b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793.",
+      "Пакет Cisco SHA-256 верифицирован: 2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d.",
+      "Stage 10 E2E с подготовленными ингредиентами: ядро из сундука (−503,103,114), крафт рубина, 2 обмена, восстановление незабранной награды после рестарта. 6 транзакций, нет дублей. Статус: PARTIAL (ингредиенты частично подготовлены заранее).",
+      "DRAGONFYRE.md и STAGE10-SURVIVAL.md обновлены, 6 скриншотов и логи сохранены в outputs/native-stage-10.",
+      "Stage10Natural QA: мир запущен через Launcher с пустым стартовым инвентарём, башня подтверждена, но персонаж погиб от зомби до достижения сундука."
     ],
     "verification": [
-      "Тесты ядра: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline.",
-      "Сводка Stage 10: 1 монета, 32 порции, 1 рубин и 6 операций. Часть ингредиентов подготовлена заранее.",
-      "Запуск Debug проверен отдельно от прежнего прогона Stage 10. Повторный запуск тестов квестового ядра на исходниках рабочего коммита дал 34/34.",
-      "Ель добыта в игре, из неё собраны доски, палки и верстак. Башня достигнута пешком, подтверждён естественный сундук."
+      "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
+      "Get-FileHash horizon-client-debug.exe → b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793 (MATCH).",
+      "Get-FileHash Dragonfyre-cisco_mod.hmod → 2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d (MATCH).",
+      "survival-second.json и survival-resume.json подтверждают: 1 монета, 32 ветчины, 1 рубин, crafting_table, 6 транзакций после рестарта.",
+      "Launcher log (stage10-natural-qa): DragonfyreQA joined at (45.5, 72.0, 159.5), killed by zombie — natural run started, tower not reached."
     ],
     "blockers": [
-      "Прежний прогон крафта, выдачи наград и сохранения Stage 10 не привязан к этому Debug-бинарнику.",
-      "Естественная добыча всех ингредиентов и полный Survival E2E остаются открыты.",
-      "Несоответствие оригиналу: Arcane Apparatus расходуется вместо возврата с износом. Для эссенций текущий пакет требует 9 приборов и 36 алмазов вместо 1 прибора и 4 алмазов."
+      "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
+      "Несоответствие оригиналу: Arcane Apparatus расходуется (порт) вместо возврата с износом (оригинал). Текущий крафт рубина требует 9 аппаратов/36 алмазов; оригинал — 1 аппарат/4 алмаза. Нужно исправить или явно задокументировать как PARTIAL.",
+      "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
+      "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2."
     ],
-    "next_action": "Продолжить сохранение Stage10Natural в одном изолированном каталоге на том же Debug-клиенте. Добраться до естественного сундука в башне, проверить квест ядра и сохранение награды; для приёмки Issue #1 отдельно завершить добычу всех компонентов и крафт рубина."
+    "next_action": "Запустить полный Survival без pre-staged ингредиентов: тот же Debug-клиент (SHA b9740f4f), seed 9001, work/stage10-natural-qa/. Дойти до башни, взять Divine Core, добыть все ингредиенты рубина естественным путём, скрафтить, сдать квесты, проверить рестарт. Параллельно — исследовать и задокументировать несоответствие Arcane Apparatus относительно cisco_mod_legacy_2.5.jar."
   }
 }

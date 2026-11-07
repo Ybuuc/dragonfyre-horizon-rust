@@ -2,7 +2,6 @@
 import argparse
 import json
 import math
-from pathlib import Path
 import time
 
 from prepare_dragonfyre_survival_test import INGREDIENTS, LAB, ROOT, WORLD, PLAYER
@@ -77,13 +76,15 @@ def slot_of(snapshot, item):
     return slot
 
 
-def craft(table):
-    aim((table[0]+0.5, table[1]-0.02, table[2]+0.5))
-    call('key 9 tap')
-    call('mouse right click')
-    time.sleep(0.5)
-    aim(tuple(x+0.5 for x in table))
-    call('mouse right click')
+def craft(table, coins=2, ham=0):
+    if call('screen').get('craft_size') != 3:
+        coords = ' '.join(map(str, table))
+        if call(f'getblock {coords}')['block'] != 'minecraft:crafting_table':
+            call(f'place {coords} --item minecraft:crafting_table')
+        aim((table[0]+0.5, table[1]+0.98, table[2]+0.5))
+        hit = call('looking-at')['block']
+        assert hit and hit['pos'] == list(table), hit
+        call('mouse right click')
     screen = poll(lambda: (s if (s := call('screen')).get('craft_size') == 3 else None),
                   'crafting table did not open')
     recipe = (*INGREDIENTS[:4], CORE, *INGREDIENTS[4:8])
@@ -95,7 +96,7 @@ def craft(table):
     assert slot_of(screen, RUBY) == 200, screen
     screenshot('03-ruby-on-workbench')
     call('click-slot 200 shift')
-    wait_counts(0, 1, 2, 0)
+    wait_counts(0, 1, coins, ham)
     close()
 
 
@@ -112,7 +113,7 @@ def first(chest, table):
     wait_counts(1, 0, 0, 0)
     close()
     journal()
-    screenshot('02-core-claim-ready')
+    screenshot('02-core-in-inventory')
     journal_click(295, 101)
     journal_click(295, 101)
     wait_counts(1, 0, 2, 0)
@@ -137,6 +138,40 @@ def first(chest, table):
     return {'core_looted': True, 'ruby_crafted': True, 'counts_before_restart': counts(0, 1, 1, 16)}
 
 
+def find_workbench_site():
+    x, y, z = map(math.floor, call('status')['player']['position'])
+    replaceable = {'minecraft:air', 'minecraft:cave_air', 'minecraft:snow[layers=1]'}
+    for dx, dz in ((0, 1), (1, 0), (0, -1), (-1, 0), (0, 2), (2, 0), (0, -2), (-2, 0)):
+        table = x + dx, y, z + dz
+        if call(f'getblock {table[0]} {table[1]} {table[2]}')['block'] not in replaceable:
+            continue
+        aim((table[0]+0.5, table[1]-0.02, table[2]+0.5))
+        hit = call('looking-at').get('block')
+        if hit and hit.get('face') == 'up' and (
+            hit.get('pos') == [table[0], table[1]-1, table[2]]
+            or (hit.get('pos') == list(table) and hit.get('state') == 'minecraft:snow[layers=1]')
+        ):
+            return table
+    raise AssertionError('No clear space for a workbench next to the player')
+
+
+def resume(table):
+    # A manual pass already claimed the core reward and exchanged its two coins.
+    wait_counts(1, 0, 0, 16)
+    craft(table or find_workbench_site(), coins=0, ham=16)
+    journal()
+    time.sleep(4)
+    journal_click(295, 57)
+    journal_click(295, 57)
+    wait_counts(0, 1, 3, 16)
+    time.sleep(2)
+    journal_click(251, 144)
+    wait_counts(0, 1, 1, 16)
+    stable_counts(0, 1, 1, 16)
+    screenshot('04-second-trade-awaits-restart')
+    return {'ruby_crafted': True, 'counts_before_restart': counts(0, 1, 1, 16)}
+
+
 def second():
     wait_counts(0, 1, 1, 16)
     journal()
@@ -156,15 +191,21 @@ def second():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('run', choices=('first', 'second'))
+    parser.add_argument('run', choices=('first', 'resume', 'second'))
     parser.add_argument('--chest', type=int, nargs=3)
     parser.add_argument('--table', type=int, nargs=3)
     args = parser.parse_args()
     poll(lambda: (LAB/'control.json').is_file(), 'control endpoint did not appear', limit=500)
-    start = poll(lambda: (s if (s := call('status'))['screen'] == 'playing' and s.get('player') else None),
+    screens = {'playing', 'inventory'} if args.run == 'resume' else {'playing'}
+    start = poll(lambda: (s if (s := call('status'))['screen'] in screens and s.get('player') else None),
                  'world did not load', limit=800)
     assert not start['creative'], start
-    result = first(args.chest, args.table) if args.run == 'first' else second()
+    if args.run == 'first':
+        result = first(args.chest, args.table)
+    elif args.run == 'resume':
+        result = resume(args.table)
+    else:
+        result = second()
     report = {'start': start, 'result': result}
     (OUT/f'survival-{args.run}.json').write_text(json.dumps(report, indent=2, ensure_ascii=False)+'\n',
                                                 encoding='utf-8')
