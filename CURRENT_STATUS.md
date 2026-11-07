@@ -115,3 +115,7 @@ Removed only the temporary checkout created by this test.
 ```
 
 **Вывод:** `native/dragonfyre-quests/engine` воспроизводим из исходников приватного GitHub checkout **с уже установленным внешним Rust toolchain**, без прежнего локального дерева и без Cargo dependency cache. Это **не** означает воспроизводимую сборку Horizon + всех модов; stage10 E2E/игровое прохождение и аудио всё ещё открыты.
+
+## Подготовлен изолированный шаг воспроизведения нативной интеграции (8 ноября 2026)
+
+В GitHub добавлен `scripts/apply-dragonfyre-native.py`: читает актуальный `native/dragonfyre-quests/horizon-mixin.toml`, принимает параметры исходного подготовленного Horizon и `horizon-mixins.exe`, применяет mixins в новую директорию `outputs/native-reproduction/dragonfyre-native-*/applied` и сравнивает generated engine с исходным по SHA-256. Старые деревья и игровые данные не перезаписываются. **Новый скрипт ещё не выполнялся на Windows; Horizon binary не собран.** После успешного применения нужно проверить build/release воспроизводимость и корректность source baseline.
