@@ -130,3 +130,11 @@ Removed only the temporary checkout created by this test.
 - **NOT VERIFIED:** сборка бинарника `horizon-client.exe` из этого generated tree; чистое воспроизведение Horizon/mixins с внешних pin-источников; запуск через Launcher; survival Stage 10.
 
 Для следующего этапа добавлен `scripts/build-dragonfyre-native.py`. Он принимает точную папку `--applied`, директории `--rust-bin` и `--mingw-bin`, использует `--locked --offline -p horizon-client --no-default-features --jobs 1`, локальные `work/native-cargo` и `work/native-game-target`, записывает build.log/report и копирует exe только при успешной сборке. **Скрипт ещё не исполнялся на Windows; компиляция Horizon не подтверждена.**
+
+## VERIFIED: Debug Horizon compiled; передача состояния в GitHub (8 ноября 2026)
+
+По предоставленному PowerShell выводу `outputs/native-reproduction/dragonfyre-native-bi4vueka/build-debug.json` имеет `status=ok`, `exit_code=0`, `profile=debug`. Файл `horizon-client-debug.exe` существует, размер **278.92 MiB**, фактический SHA-256 **совпадает** с `b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793`. Ошибка `else` в интерактивном PowerShell не относится к сборке.
+
+**Подтверждено:** создание Debug-бинарника из дерева, полученного применением mixins. **Не подтверждено:** запуск бинарника через Horizon Offline Launcher, реальная игра/GUI, Stage 10 survival E2E, аудио, Release-оптимизация и полный перенос модпака.
+
+Для исключения повторной пересылки файла добавлены [reports/AI_STATE.json](reports/AI_STATE.json), [docs/AI_ACCESS.md](docs/AI_ACCESS.md) и `scripts/sync-ai-state.ps1`. Вся небольшая сводка о подтверждённых событиях доступна агентам из GitHub. **Локальные будущие отчёты появляются в GitHub только после `git push` (скрипт может делать это с `-Push`); локальный диск автоматически не раскрывается GitHub connector.**
