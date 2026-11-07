@@ -46,7 +46,7 @@ foreach ($rel in $allPaths) {
         elseif ($a -eq $b) { 'MATCH_GITHUB_STAGE07' }
         else { 'DIFFERENT_GITHUB_STAGE07' }
     [pscustomobject]@{ File=$rel; Status=$status; InOldHorizon=($null -ne $c); Stage07MatchesOld=($null -ne $b -and $b -eq $c) }
-} | Out-Host
+}
 
 Write-Host "`n=== Horizon integration source diffs (Stage 07 vs Horizon copy) ===" -ForegroundColor Cyan
 $paths = @(
