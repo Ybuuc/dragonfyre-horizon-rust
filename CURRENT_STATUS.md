@@ -48,3 +48,13 @@
 - `scripts/verify-layout.ps1` — проверка существования файлов; не компиляция и не доказательство игрового прохождения.
 
 **Приоритет следующего агента:** (1) инвентаризация неотслеживаемых деревьев и поиск уникального кода/патчей, (2) проверка, что чистый `git clone` может воспроизвести сборку из отслеживаемых исходников и документированных внешних зависимостей, (3) закончить Stage 10 с реальными логами GUI и сохраняемостью.
+
+## Подтверждённая сверка исходников Stage 07 (PowerShell пользователя, 8 ноября 2026)
+
+- **VERIFIED (file SHA equality):** опубликованный Rust-квестовый движок `native/dragonfyre-quests/engine` версии `0.4.0-dev` соответствует сгенерированному движку `work/stage07-build-4337axm1/applied/native-crates/dragonfyre_quests/engine` по восьми исходным файлам (Cargo.toml и семь модулей src). `Cargo.lock` присутствует только в отдельном дереве GitHub engine; источник lock для Stage07 надо подтвердить.
+- `work/horizon-66f3981/crates/dragonfyre-quests-engine` — ранняя версия `0.2.0-dev`; не перезаписывать ею GitHub 0.4.0.
+- **OPEN:** интеграционные различия `lan.rs`, `native_hooks.rs` и остальных файлов ещё не соотнесены полностью с mixin-инъекциями и подготовленной базой. Базовая папка `work/horizon-66f3981` уже содержит Dragonfyre-код; это не доказанно чистый upstream.
+- **OPEN:** `work/build_native_stage07.py` ссылается на внешние build-tools, `work/native-package-pristine`, `work/mixins-target/debug/horizon-mixins.exe` и `work/native-package-applied-stage06-final`. Чистый clone **ещё не доказан как самодостаточный**.
+- **Не выполнено:** финальная E2E-проверка Stage 10, включая `survival-first.json` и `survival-second.json` (по проверенным путям отсутствовали).
+
+См. [Issue #2](https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2). Выше приведённые подтверждения — сравнение исходных файлов, **не успешная сборка**.
