@@ -83,7 +83,7 @@ $state.native_integration.debug_build = [pscustomobject]@{
 }
 $state.synced_report_source = 'Allowlisted fields from local apply-report.json/build-debug.json; raw logs and binary excluded'
 $json = ($state | ConvertTo-Json -Depth 12) + "`n"
-$utf8 = New-Object System.Text.UTF8Encoding($false)
+$utf8 = [System.Text.UTF8Encoding]::new($false)
 [System.IO.File]::WriteAllText($statePath, $json, $utf8)
 
 Write-Host "AI state updated locally: reports/AI_STATE.json" -ForegroundColor Green
@@ -93,7 +93,7 @@ Write-Host "Native debug: $buildStatus, exit=$buildExit, sha256 match=$hashMatch
 Write-Host 'The status contains no absolute paths, local logs, game saves or .exe file.'
 if (-not $Push) {
     Write-Host 'GitHub not updated yet. Run this script with -Push after inspecting reports/AI_STATE.json.'
-    exit 0
+    return
 }
 
 $branch = (& git -C $projectRoot branch --show-current).Trim()
@@ -107,7 +107,7 @@ if ($LASTEXITCODE -ne 0) { throw 'git add failed' }
 & git -C $projectRoot diff --cached --quiet -- reports/AI_STATE.json
 if ($LASTEXITCODE -eq 0) {
     Write-Host 'Already synchronized: no AI_STATE.json changes to publish.'
-    exit 0
+    return
 }
 if ($LASTEXITCODE -ne 1) { throw 'git diff failed' }
 # Commit ONLY this one file. No other staged changes, binaries, logs or secrets.
