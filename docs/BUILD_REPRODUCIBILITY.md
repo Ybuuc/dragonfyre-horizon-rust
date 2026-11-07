@@ -65,3 +65,26 @@
 Вывод `Get-Command gcc, strip, clang, x86_64-w64-mingw32-gcc` **пустой**: каталог, вероятно, отсутствует в текущем `PATH` PowerShell. Наличие файла не устанавливает работоспособность, версии или совместимость. Предпочтительный способ проверить — вызвать executables по абсолютному пути, вывести `gcc -dumpmachine`, `gcc --version`, `strip --version`, `rustc -vV`, `cargo -V`, а затем добавить папки временно в `$env:Path` для текущего терминала. **Не устанавливать дубликаты компилятора и не менять глобальный PATH без необходимости.**
 
 Старая отметка "gcc/strip не найдены по build-tools/mingw64/bin" остаётся истинной исключительно для того пути; требование найти GCC на компьютере выполнено.
+
+## Toolchain: проверенные версии (вывод PowerShell пользователя, 8 ноября 2026)
+
+| Компонент | Версия / целевая платформа | Нахождение |
+|---|---|---|
+| GCC (MSYS2 MinGW64) | `16.2.0`; `gcc -dumpmachine = x86_64-w64-mingw32` | `C:/msys64/mingw64/bin/gcc.exe` |
+| GNU binutils strip | `2.47.20260726` | `C:/msys64/mingw64/bin/strip.exe` |
+| Rust compiler | `rustc 1.99.1 (58cf8f9c3 2026-10-13)` | `.../build-tools/rustup/toolchains/stable-x86_64-pc-windows-gnu/bin/rustc.exe` |
+| Cargo | `1.99.1 (5f94df478 2026-08-27)` | тот же GNU toolchain |
+| Rust host | `x86_64-pc-windows-gnu` | `rustc -vV` |
+| LLVM | `23.1.1` | `rustc -vV` |
+
+**Подтверждено:** `gcc`, `strip`, `cargo`, `rustc` успешно запускаются и разрешаются через временно дополненный `PATH`; их основные target/host совместимы на уровне имени архитектуры/ABI. **Не подтверждено:** компиляция, линковка и тесты всей Horizon-сборки. Глобальные переменные среды пользователя не изменялись.
+
+### Ближайший контролируемый тест
+
+В `native/dragonfyre-quests/engine/Cargo.toml` нет внешних dependencies; `Cargo.lock` содержит один пакет. Поэтому автономные тесты квестового движка можно запускать **до** подготовки всего Horizon. Добавлен скрипт:
+
+```powershell
+.\\scripts\\test-quest-engine.ps1 -RustBin 'C:\\Users\\Dimash\\Documents\\Codex\\2026-11-06\\referenced-chatgpt-conversation-this-is-an\\work\\build-tools\\rustup\\toolchains\\stable-x86_64-pc-windows-gnu\\bin' -MinGwBin 'C:\\msys64\\mingw64\\bin'
+```
+
+Он запускает `cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline` с output в отдельной временной директории и не меняет игровой профиль. **Скрипт создан в GitHub, но ещё не выполнялся на компьютере пользователя.**
