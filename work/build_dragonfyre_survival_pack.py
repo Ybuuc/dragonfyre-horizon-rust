@@ -94,17 +94,21 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.2.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.3.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
-        files[DATA + f'horizon/item/{item}.json'] = json_bytes({
+        definition = {
             'template': base, 'max_stack_size': 64,
             'components': {
                 'minecraft:item_name': {'translate': f'item.cisco_mod.{item}'},
                 'minecraft:item_model': base,
             },
-        })
+        }
+        if item == 'arcane_apparatus':
+            definition.update(max_stack_size=1, rarity='epic')
+            definition['components']['minecraft:max_damage'] = 50
+        files[DATA + f'horizon/item/{item}.json'] = json_bytes(definition)
     for index, lang in enumerate(('en_us', 'ru_ru')):
         path = f'assets/cisco_mod/lang/{lang}.json'
         words = json.loads(files[path])

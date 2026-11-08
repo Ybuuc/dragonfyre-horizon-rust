@@ -119,3 +119,30 @@ bindings = [
   { name = "canceled", ty = "&mut bool", value = "&mut *canceled" },
 ]
 
+[[module]]
+id = "arcane_apparatus"
+file = "crates/horizon-client/src/crafting.rs"
+name = "dragonfyre_apparatus"
+source = "arcane_apparatus.rs"
+
+[[injection]]
+id = "wear_arcane_apparatus"
+target = "horizon_client_lib::crafting::Recipes::remainders"
+kind = "RETURN"
+helper = "apparatus_remainder.rs"
+bindings = [
+  { name = "remaining", ty = "Vec<Option<ItemStack>>", value = "$value" },
+  { name = "grid", ty = "&[Option<ItemStack>]", value = "grid" },
+]
+
+[[injection]]
+id = "disable_arcane_apparatus_crafting_repair"
+target = "horizon_client_lib::crafting::Recipes::assemble_if_matches"
+kind = "HEAD"
+cancellable = true
+helper = "apparatus_repair.rs"
+bindings = [
+  { name = "recipe", ty = "&Recipe", value = "recipe" },
+  { name = "input", ty = "&Input<'_>", value = "input" },
+]
+
