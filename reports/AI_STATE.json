@@ -211,6 +211,26 @@
         "receipt_sha256": "e42275fe8c16d1eff0f30d14d8d415be1fcc117c745f3ee2a7a4a5368eb182f1",
         "log_sha256": "523a12916bdb3cd1adb6eab7c3868027a3f951966b204fabc1eebb21de270ffd"
       }
+    },
+    "arcane_apparatus_port": {
+      "status": "IMPLEMENTED_AUTOMATED_CHECKS_PASSED",
+      "checked_at": "2026-11-08T08:24:38+05:00",
+      "source_commit": "1105536fc29ff8054fda9c505e26eb8ced9c253a",
+      "original_jar_sha256": "9c3a310c676c2dbb54f7207006c4b9bb7189825be8731b9b1ebe839440d86100",
+      "durability": 50,
+      "stack_size": 1,
+      "crafting_grid_repair": false,
+      "horizon_tests_passed": 2,
+      "quest_engine_tests_passed": 34,
+      "cisco_package_version": "0.3.0",
+      "cisco_package_sha256": "0f0d40c6c6372ed87af63b8ca5245e1b68a9446279ee497f60012adbc898f2ba",
+      "debug_binary_sha256": "3ee7c5de36dc29941773bd9abe897a72f5ca74361d7a72b6e61bfb2e7e83ba73",
+      "local_build_run": "dragonfyre-native-wpnbp3c7",
+      "build_reused_pinned_native_archives": [
+        "ring 0.17.14",
+        "libmimalloc-sys 0.1.49"
+      ],
+      "manual_gameplay": "assigned to user; no gameplay run for the new build"
     }
   },
   "known_blockers": [
@@ -221,19 +241,19 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Вновь открыть Stage10Natural через кнопку «Играть» на том же Debug SHA b9740f4f, восстановить снаряжение у сохранённого верстака (78,71,193) и пройти к сундуку (−503,103,114) с юга по z≈195 в обход медведей. После добычи Divine Core проверить выдачу первой награды, обмен и повторную загрузку квестового состояния. Для закрытия Issue #1 требуется чистый прогон всей цепочки без внешнего перемещения.",
+  "next_task": "Продолжить перенос лута Башни совиного мага. Начать с amuletof_vitality: сверить исходный слот Curios и реализовать экипировку с модификатором +10 к максимальному здоровью и снятие модификатора при снятии амулета. Ручная приёмка Stage 10 остаётся за пользователем.",
   "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
   "handoff": {
-    "updated_at": "2026-11-08T07:31:59+05:00",
+    "updated_at": "2026-11-08T08:24:38+05:00",
     "status": "PARTIAL",
-    "active_task": "Stage 10 — Issue #1: завершить полный Survival E2E без заранее подготовленного инвентаря",
+    "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "e651d67a4d636de900db29f10449bbb349f0a129"
+      "commit": "1105536fc29ff8054fda9c505e26eb8ced9c253a"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -246,7 +266,8 @@
       "Натуральный переход на запад дошёл до (−338.5,63,173.5); персонаж дважды погиб от белых медведей у (−330,63,164) и потерял каменные инструменты, факелы и часть ресурсов. Divine Core не добыт.",
       "Пища восстановлена естественно охотой на кролика; здоровье восстанавливается, прогон продолжается.",
       "На момент публикации лаунчер закрыт; сохранение мира Stage10Natural на месте (level.dat 2026-11-08 07:18), потери мира нет.",
-      "На том же Debug повторный запуск Stage10Natural через «Играть» восстановил обычный инвентарь, позицию и поставленный верстак."
+      "На том же Debug повторный запуск Stage10Natural через «Играть» восстановил обычный инвентарь, позицию и поставленный верстак.",
+      "Перенесён Arcane Apparatus: один предмет в стопке, 50 применений с износом после крафта, запрет ремонта в сетке. Собраны Debug-клиент и пакет Cisco 0.3.0."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -255,15 +276,16 @@
       "survival-second.json и survival-resume.json подтверждают: 1 монета, 32 ветчины, 1 рубин, crafting_table, 6 транзакций после рестарта.",
       "Launcher log (stage10-natural-qa): DragonfyreQA joined at (45.5, 72.0, 159.5), killed by zombie — natural run started, tower not reached.",
       "Естественность вводов: control.py разрешает только обычные вводы и наблюдения; give, tp и чат-команды не использовались. При этом зафиксировано внешнее вмешательство пользователя (возрождение/перемещение игрока), поэтому текущий прогон не считается чистым натуральным E2E.",
-      "Повторный вход через Horizon Offline Launcher: совпали позиция, 16 песка, 1 кроличья шкурка и верстак (78,71,193). Награды в этом рестарте не проверялись."
+      "Повторный вход через Horizon Offline Launcher: совпали позиция, 16 песка, 1 кроличья шкурка и верстак (78,71,193). Награды в этом рестарте не проверялись.",
+      "В Stage10Natural южный маршрут по z≈200 дошёл до башни в обход медведей. Прогон остановлен до получения Divine Core по просьбе пользователя.",
+      "Применены 10 инъекций и 4 модуля; 2 теста Horizon на износ и ремонт, 34 теста квестового ядра. Сборка Debug использует локальные архивы закреплённых ring и mimalloc."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
-      "Несоответствие оригиналу: Arcane Apparatus расходуется (порт) вместо возврата с износом (оригинал). Текущий крафт рубина требует 9 аппаратов/36 алмазов; оригинал — 1 аппарат/4 алмаза. Нужно исправить или явно задокументировать как PARTIAL.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
-      "Маршрут к башне перекрыт семейством белых медведей у (−330,63,164): дважды потеряно снаряжение. Нужен обход южнее (z≈195) и повторный крафт инструментов."
+      "Игровая приёмка нового Debug и пакета Cisco 0.3.0 отложена до проверки пользователем. Stage 10 остаётся PARTIAL."
     ],
-    "next_action": "Вновь открыть Stage10Natural через кнопку «Играть» на том же Debug SHA b9740f4f, восстановить снаряжение у сохранённого верстака (78,71,193) и пройти к сундуку (−503,103,114) с юга по z≈195 в обход медведей. После добычи Divine Core проверить выдачу первой награды, обмен и повторную загрузку квестового состояния. Для закрытия Issue #1 требуется чистый прогон всей цепочки без внешнего перемещения."
+    "next_action": "Продолжить перенос лута Башни совиного мага. Начать с amuletof_vitality: сверить исходный слот Curios и реализовать экипировку с модификатором +10 к максимальному здоровью и снятие модификатора при снятии амулета. Ручная приёмка Stage 10 остаётся за пользователем."
   }
 }
