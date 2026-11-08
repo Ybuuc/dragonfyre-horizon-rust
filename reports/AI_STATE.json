@@ -184,7 +184,8 @@
         "divine_core_obtained": false,
         "ruby_crafted": false,
         "user_intervention": "player revived/moved externally near spawn; this attempt is not a clean natural E2E and must not be claimed as VERIFIED",
-        "next_attempt": "re-craft tools and torches, route west along z~195 to avoid the polar bears, approach the tower from the south and tunnel to the chest (-503,103,114)"
+        "session_state": "Horizon launcher closed after this checkpoint; control socket inactive; world save work/stage10-natural-qa/game/instances/dragonfyre/saves/Stage10Natural intact (level.dat 2026-11-08 07:18 local)",
+        "next_attempt": "restart Stage10Natural via Horizon Offline Launcher, re-craft tools and torches, route west along z~195 to avoid the polar bears, approach the tower from the south and tunnel to the chest (-503,103,114)"
       },
       "original_parity_issue": {
         "ingredient": "cisco_mod:arcane_apparatus",
@@ -193,6 +194,22 @@
         "apparatus_for_ruby_in_current_pack": 9,
         "diamonds_for_apparatus_in_current_pack": 36,
         "diamonds_for_original_reusable_apparatus": 4
+      },
+      "ordinary_save_restart": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-08T07:31:59+05:00",
+        "base_checkpoint": "e651d67a4d636de900db29f10449bbb349f0a129",
+        "launch_route": "Horizon Offline Launcher 1.3.0 → Dragonfyre → Play",
+        "world": "Stage10Natural",
+        "saved_and_reopened_inventory": {
+          "minecraft:sand": 16,
+          "minecraft:rabbit_hide": 1
+        },
+        "position_unchanged": true,
+        "previously_crafted_workbench_persisted": [78, 71, 193],
+        "quest_rewards_tested": false,
+        "receipt_sha256": "e42275fe8c16d1eff0f30d14d8d415be1fcc117c745f3ee2a7a4a5368eb182f1",
+        "log_sha256": "523a12916bdb3cd1adb6eab7c3868027a3f951966b204fabc1eebb21de270ffd"
       }
     }
   },
@@ -204,10 +221,10 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Продолжить натуральный Survival E2E в Stage10Natural: восстановить снаряжение у (78,71,193), пройти на запад южнее медведей (z≈195), подойти к башне с юга и выкопать туннель к сундуку (−503,103,114) вне радиуса спавнеров. После получения Divine Core — изготовить рубин, сдать квесты и проверить сохранение после перезапуска. Статус остаётся PARTIAL: зафиксировано внешнее вмешательство пользователя и потери снаряжения.",
+  "next_task": "Вновь открыть Stage10Natural через кнопку «Играть» на том же Debug SHA b9740f4f, восстановить снаряжение у сохранённого верстака (78,71,193) и пройти к сундуку (−503,103,114) с юга по z≈195 в обход медведей. После добычи Divine Core проверить выдачу первой награды, обмен и повторную загрузку квестового состояния. Для закрытия Issue #1 требуется чистый прогон всей цепочки без внешнего перемещения.",
   "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
   "handoff": {
-    "updated_at": "2026-11-08T07:20:18+05:00",
+    "updated_at": "2026-11-08T07:31:59+05:00",
     "status": "PARTIAL",
     "active_task": "Stage 10 — Issue #1: завершить полный Survival E2E без заранее подготовленного инвентаря",
     "related_issues": [
@@ -216,7 +233,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "6a821c6e995878420b1a2664bc18abd7866760f4"
+      "commit": "e651d67a4d636de900db29f10449bbb349f0a129"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -227,7 +244,9 @@
       "Stage10Natural QA: мир запущен через Launcher с пустым стартовым инвентарём, башня подтверждена, но персонаж погиб от зомби до достижения сундука.",
       "Натуральный прогон Stage10Natural: добыто 4 бревна ели, 17 булыжника, 2 киновари, 3 угля; скрафчены деревянные и каменные кирка/меч, 8 факелов; построен и запечатан схрон (80,68,192), пережита ночь.",
       "Натуральный переход на запад дошёл до (−338.5,63,173.5); персонаж дважды погиб от белых медведей у (−330,63,164) и потерял каменные инструменты, факелы и часть ресурсов. Divine Core не добыт.",
-      "Пища восстановлена естественно охотой на кролика; здоровье восстанавливается, прогон продолжается."
+      "Пища восстановлена естественно охотой на кролика; здоровье восстанавливается, прогон продолжается.",
+      "На момент публикации лаунчер закрыт; сохранение мира Stage10Natural на месте (level.dat 2026-11-08 07:18), потери мира нет.",
+      "На том же Debug повторный запуск Stage10Natural через «Играть» восстановил обычный инвентарь, позицию и поставленный верстак."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -235,7 +254,8 @@
       "Get-FileHash Dragonfyre-cisco_mod.hmod → 2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d (MATCH).",
       "survival-second.json и survival-resume.json подтверждают: 1 монета, 32 ветчины, 1 рубин, crafting_table, 6 транзакций после рестарта.",
       "Launcher log (stage10-natural-qa): DragonfyreQA joined at (45.5, 72.0, 159.5), killed by zombie — natural run started, tower not reached.",
-      "Естественность вводов: control.py разрешает только обычные вводы и наблюдения; give, tp и чат-команды не использовались. При этом зафиксировано внешнее вмешательство пользователя (возрождение/перемещение игрока), поэтому текущий прогон не считается чистым натуральным E2E."
+      "Естественность вводов: control.py разрешает только обычные вводы и наблюдения; give, tp и чат-команды не использовались. При этом зафиксировано внешнее вмешательство пользователя (возрождение/перемещение игрока), поэтому текущий прогон не считается чистым натуральным E2E.",
+      "Повторный вход через Horizon Offline Launcher: совпали позиция, 16 песка, 1 кроличья шкурка и верстак (78,71,193). Награды в этом рестарте не проверялись."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
@@ -244,6 +264,6 @@
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
       "Маршрут к башне перекрыт семейством белых медведей у (−330,63,164): дважды потеряно снаряжение. Нужен обход южнее (z≈195) и повторный крафт инструментов."
     ],
-    "next_action": "Продолжить Stage10Natural: восстановить инструменты и факелы у верстака (78,71,193), идти на запад по z≈195 (южнее медведей), подойти к башне с юга (x≈−503, z≈130), выкопать туннель к сундуку (−503,103,114) вне радиуса спавнеров, забрать Divine Core, сохранить мир и проверить рестарт. Полный E2E с крафтом рубина остаётся PARTIAL; параллельно — задокументировать несоответствие Arcane Apparatus."
+    "next_action": "Вновь открыть Stage10Natural через кнопку «Играть» на том же Debug SHA b9740f4f, восстановить снаряжение у сохранённого верстака (78,71,193) и пройти к сундуку (−503,103,114) с юга по z≈195 в обход медведей. После добычи Divine Core проверить выдачу первой награды, обмен и повторную загрузку квестового состояния. Для закрытия Issue #1 требуется чистый прогон всей цепочки без внешнего перемещения."
   }
 }
