@@ -7,7 +7,7 @@ use std::sync::{
 
 const SCREEN: &str = "dragonfyre_quests:necklace";
 const WIDTH: f32 = 252.0;
-const HEIGHT: f32 = 105.0;
+const HEIGHT: f32 = 130.0;
 
 #[derive(Default)]
 struct Client {
@@ -121,6 +121,10 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
                     tr("Amulet of Luck", "Амулет удачи"),
                     tr("+5 luck", "+5 к удаче"),
                 ),
+                Amulet::SwimSpeed => (
+                    tr("Amulet of Swim Speed", "Амулет скорости плавания"),
+                    tr("+20% swim speed", "+20% к скорости плавания"),
+                ),
             };
             game.native_text(batch, name, [x + 38.0, line], 0xf6eee0, false);
             game.native_text(batch, effect, [x + 38.0, line + 10.0], 0xbdb2a4, false);
@@ -153,7 +157,7 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             None => "",
         }
     };
-    game.native_text(batch, status, [x + 12.0, y + 89.0], 0xf1c46c, false);
+    game.native_text(batch, status, [x + 12.0, y + 114.0], 0xf1c46c, false);
 }
 
 pub(super) fn click(

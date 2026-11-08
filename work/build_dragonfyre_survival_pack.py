@@ -30,6 +30,7 @@ ITEMS = {
     'arcane_apparatus': ('Arcane Apparatus', 'Магический прибор', 'blaze_rod'),
     'amuletof_vitality': ('Amulet of Vitality', 'Амулет жизненной силы', 'emerald'),
     'amuletof_luck': ('Amulet of Luck', 'Амулет удачи', 'emerald'),
+    'amuletof_swim_speed': ('Amulet of Swim Speed', 'Амулет скорости плавания', 'emerald'),
     'brilliant_diamond': ('Brilliant Diamond', 'Сверкающий алмаз', 'diamond'),
     'raw_brightsteel': ('Raw Brightsteel', 'Необработанная светосталь', 'raw_gold'),
     'brightsteel_ingot': ('Brightsteel Ingot', 'Слиток светостали', 'gold_ingot'),
@@ -39,6 +40,8 @@ AMULETS = {
     'amuletof_vitality': ('amuvitality', '+10 maximum health while equipped.',
                          '+10 к максимуму здоровья при экипировке.'),
     'amuletof_luck': ('amuluck', '+5 luck while equipped.', '+5 к удаче при экипировке.'),
+    'amuletof_swim_speed': ('amuswim', '+20% swim speed while equipped.',
+                           '+20% к скорости плавания при экипировке.'),
 }
 
 
@@ -101,7 +104,7 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.5.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.6.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
@@ -129,8 +132,9 @@ def content(jar):
         })
         for path in (f'models/item/{item}.json', f'textures/item/{texture}.png'):
             files[assets + path] = jar.read(assets + path)
-    animation = assets + 'textures/item/amuluck.png.mcmeta'
-    files[animation] = jar.read(animation)
+    for texture in ('amuluck', 'amuswim'):
+        animation = assets + f'textures/item/{texture}.png.mcmeta'
+        files[animation] = jar.read(animation)
     for index, lang in enumerate(('en_us', 'ru_ru')):
         path = f'assets/cisco_mod/lang/{lang}.json'
         words = json.loads(files[path])

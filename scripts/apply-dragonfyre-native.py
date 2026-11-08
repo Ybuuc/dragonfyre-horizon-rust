@@ -54,6 +54,65 @@ def wire_necklace_health(applied: Path) -> str:
     return digest(path)
 
 
+def wire_swim_amulet(applied: Path) -> dict[str, str]:
+    hashes = {}
+
+    def edit(relative: str, *replacements: tuple[str, str, int]) -> None:
+        path = applied / relative
+        source = path.read_bytes()
+        newline = "\r\n" if b"\r\n" in source else "\n"
+        for old, new, count in replacements:
+            anchor = old.replace("\n", newline).encode()
+            if source.count(anchor) != count:
+                raise ValueError(f"{relative}: unexpected swimming hook location: {old}")
+            source = source.replace(anchor, new.replace("\n", newline).encode())
+        path.write_bytes(source)
+        hashes[relative] = digest(path)
+
+    edit(
+        "crates/horizon-world/src/living_fluid.rs",
+        (
+            "    fn water_movement_efficiency(&mut self) -> Result<f64, Self::Error>;",
+            "    fn water_movement_efficiency(&mut self) -> Result<f64, Self::Error>;\n"
+            "    fn water_propulsion_multiplier(&mut self) -> f32 { 1.0 }",
+            1,
+        ),
+        (
+            "    move_relative(world, input, speed)?;",
+            "    let speed = speed * world.water_propulsion_multiplier();\n"
+            "    move_relative(world, input, speed)?;",
+            1,
+        ),
+    )
+    edit(
+        "crates/horizon-client/src/motion/environment.rs",
+        (
+            "    fn dolphins_grace(&mut self) -> Result<bool> {",
+            "    fn water_propulsion_multiplier(&mut self) -> f32 {\n"
+            "        self.player.dragonfyre_swim_factor() as f32\n"
+            "    }\n"
+            "    fn dolphins_grace(&mut self) -> Result<bool> {",
+            1,
+        ),
+        (
+            "            self.player.velocity.y += f64::from(0.04f32);",
+            "            let swim_factor = self.player.dragonfyre_swim_factor();\n"
+            "            self.player.velocity.y += f64::from(0.04f32) * swim_factor;",
+            2,
+        ),
+    )
+    edit(
+        "crates/horizon-client/src/motion.rs",
+        (
+            "            self.player.velocity.y += f64::from(-0.04f32);",
+            "            let swim_factor = self.player.dragonfyre_swim_factor();\n"
+            "            self.player.velocity.y += f64::from(-0.04f32) * swim_factor;",
+            1,
+        ),
+    )
+    return hashes
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -174,6 +233,7 @@ def main() -> int:
     if not mismatches:
         try:
             report["necklace_health_source_sha256"] = wire_necklace_health(applied)
+            report["swim_amulet_source_sha256"] = wire_swim_amulet(applied)
         except (OSError, ValueError) as error:
             report["status"] = "necklace_integration_failed"
             report["error"] = str(error)

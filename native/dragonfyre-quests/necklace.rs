@@ -13,15 +13,17 @@ const LUCK: &str = "minecraft:luck";
 pub(super) enum Amulet {
     Vitality,
     Luck,
+    SwimSpeed,
 }
 
 impl Amulet {
-    pub const ALL: [Self; 2] = [Self::Vitality, Self::Luck];
+    pub const ALL: [Self; 3] = [Self::Vitality, Self::Luck, Self::SwimSpeed];
 
     pub fn id(self) -> &'static str {
         match self {
             Self::Vitality => "cisco_mod:amuletof_vitality",
             Self::Luck => "cisco_mod:amuletof_luck",
+            Self::SwimSpeed => "cisco_mod:amuletof_swim_speed",
         }
     }
 
@@ -33,6 +35,11 @@ impl Amulet {
         match self {
             Self::Vitality => (MAX_HEALTH, "dragonfyre_quests:vitality_amulet", 10.0),
             Self::Luck => (LUCK, "dragonfyre_quests:luck_amulet", 5.0),
+            Self::SwimSpeed => (
+                PlayerMotion::SWIM_AMULET_SYNC_ATTRIBUTE,
+                PlayerMotion::SWIM_AMULET_SYNC_MODIFIER,
+                0.0,
+            ),
         }
     }
 }
@@ -391,5 +398,40 @@ mod tests {
         sync_bonus(&mut reopened, &mut motion);
         assert_eq!(motion.attribute(LUCK).unwrap(), 1.0);
         assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 30.0);
+    }
+
+    #[test]
+    fn swim_amulet_restores_and_syncs_to_the_client_without_changing_water_efficiency() {
+        use horizon_client::lan::attributes::{apply, take_dirty};
+
+        let swim = ItemStack::new(Amulet::SwimSpeed.id(), 1);
+        let mut inventory = [Some(swim.clone())];
+        let mut saved = Attachments::default();
+        move_item(&mut saved, &mut inventory, Action::Equip(Amulet::SwimSpeed)).unwrap();
+        assert!(inventory[0].is_none());
+        let mut reopened = Attachments::from_nbt(saved.to_nbt());
+        assert_eq!(
+            reopened.get_existing(&NECKLACE).unwrap(),
+            Some(swim.clone())
+        );
+
+        let (Some(mut server), Some(mut client)) = (test_motion(), test_motion()) else {
+            return;
+        };
+        let attr = PlayerMotion::SWIM_AMULET_SYNC_ATTRIBUTE;
+        let efficiency = client.attribute(attr).unwrap();
+        sync_bonus(&mut reopened, &mut server);
+        apply(&mut client.attributes, &take_dirty(&mut server.attributes));
+        assert_eq!(server.dragonfyre_swim_factor(), 1.2);
+        assert_eq!(client.dragonfyre_swim_factor(), 1.2);
+        assert_eq!(client.attribute(attr).unwrap(), efficiency);
+        assert_eq!(client.attribute(MAX_HEALTH).unwrap(), 20.0);
+        assert_eq!(client.attribute(LUCK).unwrap(), 0.0);
+
+        move_item(&mut reopened, &mut inventory, Action::Remove).unwrap();
+        sync_bonus(&mut reopened, &mut server);
+        apply(&mut client.attributes, &take_dirty(&mut server.attributes));
+        assert_eq!(client.dragonfyre_swim_factor(), 1.0);
+        assert_eq!(inventory[0], Some(swim));
     }
 }

@@ -158,6 +158,12 @@ file = "crates/horizon-client/src/game/native_hooks.rs"
 name = "dragonfyre_necklace_screen"
 source = "necklace_screen.rs"
 
+[[module]]
+id = "swim_amulet_motion"
+file = "crates/horizon-client/src/motion.rs"
+name = "dragonfyre_swim_amulet"
+source = "swim_amulet.rs"
+
 [[injection]]
 id = "save_owner_necklace"
 target = "horizon_client::game::lan::Game<'_>::store_owner"
