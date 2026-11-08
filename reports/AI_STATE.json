@@ -337,6 +337,45 @@
         "libmimalloc-sys 0.1.49"
       ],
       "manual_gameplay": "assigned to user"
+    },
+    "bracing_belt_port": {
+      "status": "IMPLEMENTED_AUTOMATED_CHECKS_PASSED",
+      "checked_at": "2026-11-08T15:25:44+05:00",
+      "source_commit": "63403fc67a4a69da1b39bc43c3319efa84a162d6",
+      "item": "cisco_mod:beltof_bracing",
+      "original_jar_sha256": "9c3a310c676c2dbb54f7207006c4b9bb7189825be8731b9b1ebe839440d86100",
+      "original_curios_slot": "belt",
+      "slot_capacity": 1,
+      "attribute": "minecraft:knockback_resistance",
+      "attribute_add_value": 0.5,
+      "interface_key": "K",
+      "interface_scope": "integrated single-player owner",
+      "original_tower_pool_weight": 1,
+      "original_tower_pool_rolls": {
+        "min": 1,
+        "max": 2
+      },
+      "loot_probe": {
+        "seeds": 4096,
+        "belts_of_bracing": 438,
+        "chests_with_bracing_belt": 429,
+        "unchanged_luck_amulets": 377,
+        "unchanged_vitality_amulets": 393,
+        "unchanged_swim_speed_amulets": 438,
+        "unchanged_divine_core_drops": 166,
+        "other_loot_same_per_seed": true
+      },
+      "horizon_tests_passed": 10,
+      "quest_engine_tests_passed": 34,
+      "cisco_package_version": "0.7.0",
+      "cisco_package_sha256": "05d0fdf67f70d4e5f5f66bf98d0221dbefa06b8064576fef5516eea4948dbb2b",
+      "debug_binary_sha256": "2399f46849d49f3605d5de4bddd1b750afffc44a8c7914d0b6e8e293f109fa7a",
+      "local_build_run": "dragonfyre-native-6kjfin2r",
+      "build_reused_pinned_native_archives": [
+        "ring 0.17.14",
+        "libmimalloc-sys 0.1.49"
+      ],
+      "manual_gameplay": "assigned to user"
     }
   },
   "known_blockers": [
@@ -347,10 +386,10 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Сверить в исходном Cisco JAR эффект и правила Curios для beltof_bracing из того же пула сундука башни и спроектировать отдельный слот пояса. Ручная приёмка Stage 10 остаётся за пользователем.",
-  "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.6.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
+  "next_task": "Перенести crownofthe_emperor в отдельный слот Curios «Голова» с исходными +6 к броне и весом 1 в луте башни. Ручная приёмка Stage 10 остаётся за пользователем.",
+  "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.7.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-08T15:07:55+05:00",
+    "updated_at": "2026-11-08T15:25:44+05:00",
     "status": "PARTIAL",
     "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
     "related_issues": [
@@ -359,7 +398,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "a0d8593d7d6ca05d366249e57cabe5ed85de7202"
+      "commit": "63403fc67a4a69da1b39bc43c3319efa84a162d6"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -376,7 +415,8 @@
       "Перенесён Arcane Apparatus: один предмет в стопке, 50 применений с износом после крафта, запрет ремонта в сетке. Собраны Debug-клиент и пакет Cisco 0.3.0.",
       "Амулет жизненной силы возвращён в лут башни с исходным весом 1. Слот «Ожерелье» в меню K сохраняется с инвентарём игрока и даёт +10 к максимуму здоровья.",
       "Амулет удачи возвращён в лут башни с весом 1 в исходном пуле из 1–2 бросков. Тот же слот «Ожерелье» на K даёт +5 к minecraft:luck, пока амулет надет.",
-      "Амулет скорости плавания добавлен в общий слот «Ожерелье» на K. В исходном пуле сундука башни сохранены вес 1, один предмет за выпадение и 1–2 броска. Экипировка умножает импульс в воде и вертикальные толчки в жидкости на 1,2 по правилам Forge. Состояние слота сохраняется с игроком и передаётся клиенту через синхронизацию атрибутов."
+      "Амулет скорости плавания добавлен в общий слот «Ожерелье» на K. В исходном пуле сундука башни сохранены вес 1, один предмет за выпадение и 1–2 броска. Экипировка умножает импульс в воде и вертикальные толчки в жидкости на 1,2 по правилам Forge. Состояние слота сохраняется с игроком и передаётся клиенту через синхронизацию атрибутов.",
+      "Пояс стойкости из сундука башни надевается в отдельный слот «Пояс» через K и даёт +0,5 к сопротивлению отбрасыванию. Пояс и ожерелье сохраняются одновременно, в исходной таблице сохранены вес 1, один предмет за выпадение и 1–2 броска."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -390,14 +430,15 @@
       "Применены 10 инъекций и 4 модуля; 2 теста Horizon на износ и ремонт, 34 теста квестового ядра. Сборка Debug использует локальные архивы закреплённых ring и mimalloc.",
       "Загрузчик Horizon принял Cisco 0.4.0. 393 амулета и 166 совпавших с предыдущей версией выпадений Divine Core на 4096 бросках. 3 теста слота и здоровья, 34 теста квестового ядра, сборка Debug.",
       "Загрузчик Horizon принял Cisco 0.5.0. На 4096 одинаковых бросках получено 377 амулетов удачи в 373 сундуках, остальной лут совпал по каждому зерну. 4 теста слота и атрибутов, 34 теста квестового ядра и сборка Debug.",
-      "Загрузчик Horizon принял Cisco 0.6.0. На 4096 одинаковых бросках получено 438 амулетов скорости плавания в 427 сундуках. Остальной лут совпал по каждому зерну. Прошли 8 целевых тестов Horizon и 34 теста квестового ядра. Собран Debug 1518dc78."
+      "Загрузчик Horizon принял Cisco 0.6.0. На 4096 одинаковых бросках получено 438 амулетов скорости плавания в 427 сундуках. Остальной лут совпал по каждому зерну. Прошли 8 целевых тестов Horizon и 34 теста квестового ядра. Собран Debug 1518dc78.",
+      "Загрузчик Horizon принял Cisco 0.7.0. На 4096 одинаковых бросках получено 438 поясов стойкости в 429 сундуках. Остальной лут совпал по каждому зерну. Прошли 10 целевых тестов Horizon и 34 теста квестового ядра. Собран Debug 2399f468."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
-      "Игровую приёмку нового Debug и пакета Cisco 0.6.0 проводит пользователь. Stage 10 остаётся PARTIAL."
+      "Игровую приёмку нового Debug и пакета Cisco 0.7.0 проводит пользователь. Stage 10 остаётся PARTIAL."
     ],
-    "next_action": "Сверить в исходном Cisco JAR эффект и правила Curios для beltof_bracing из того же пула сундука башни и спроектировать отдельный слот пояса. Ручная приёмка Stage 10 остаётся за пользователем."
+    "next_action": "Перенести crownofthe_emperor в отдельный слот Curios «Голова» с исходными +6 к броне и весом 1 в луте башни. Ручная приёмка Stage 10 остаётся за пользователем."
   }
 }
