@@ -260,6 +260,44 @@
         "libmimalloc-sys 0.1.49"
       ],
       "manual_gameplay": "assigned to user"
+    },
+    "luck_amulet_port": {
+      "status": "IMPLEMENTED_AUTOMATED_CHECKS_PASSED",
+      "checked_at": "2026-11-08T14:45:48+05:00",
+      "source_commit": "45a657552bedd1d6c5f6ed5d3355e96b290590de",
+      "item": "cisco_mod:amuletof_luck",
+      "original_jar_sha256": "9c3a310c676c2dbb54f7207006c4b9bb7189825be8731b9b1ebe839440d86100",
+      "original_curios_slot": "necklace",
+      "slot_capacity": 1,
+      "attribute": "minecraft:luck",
+      "attribute_add_value": 5,
+      "interface_key": "K",
+      "interface_scope": "integrated single-player owner",
+      "original_tower_pool_weight": 1,
+      "original_tower_pool_rolls": {
+        "min": 1,
+        "max": 2
+      },
+      "loot_probe": {
+        "seeds": 4096,
+        "luck_amulets": 377,
+        "chests_with_luck_amulet": 373,
+        "unchanged_vitality_amulets": 393,
+        "unchanged_divine_core_drops": 166,
+        "other_loot_same_per_seed": true
+      },
+      "horizon_tests_passed": 4,
+      "quest_engine_tests_passed": 34,
+      "cisco_package_version": "0.5.0",
+      "cisco_package_sha256": "e3d981e1109371790b4d8a40e7edf32d7065b9d0e08c01caf83e801d276e0955",
+      "debug_binary_sha256": "c54833289570763e6050f2cdca357fc615a3bfe95136545b46591801a89cf569",
+      "local_build_run": "dragonfyre-native-ef7k3__8",
+      "build_reused_pinned_native_archives": [
+        "ring 0.17.14",
+        "libmimalloc-sys 0.1.49"
+      ],
+      "manual_gameplay": "assigned to user",
+      "loot_scope": "Horizon fishing reads player luck; ordinary container and entity rolls still use base luck zero. The source tower pools have fixed weights and no luck-dependent entries or bonus rolls."
     }
   },
   "known_blockers": [
@@ -270,10 +308,10 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Сверить исходный эффект amuletof_luck и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем.",
+  "next_task": "Сверить исходный эффект amuletof_swim_speed и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем.",
   "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
   "handoff": {
-    "updated_at": "2026-11-08T09:03:48+05:00",
+    "updated_at": "2026-11-08T14:45:48+05:00",
     "status": "PARTIAL",
     "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
     "related_issues": [
@@ -282,7 +320,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "4423f28a2f1361650ffd5a07f799673366ef7a78"
+      "commit": "45a657552bedd1d6c5f6ed5d3355e96b290590de"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -297,7 +335,8 @@
       "На момент публикации лаунчер закрыт; сохранение мира Stage10Natural на месте (level.dat 2026-11-08 07:18), потери мира нет.",
       "На том же Debug повторный запуск Stage10Natural через «Играть» восстановил обычный инвентарь, позицию и поставленный верстак.",
       "Перенесён Arcane Apparatus: один предмет в стопке, 50 применений с износом после крафта, запрет ремонта в сетке. Собраны Debug-клиент и пакет Cisco 0.3.0.",
-      "Амулет жизненной силы возвращён в лут башни с исходным весом 1. Слот «Ожерелье» в меню K сохраняется с инвентарём игрока и даёт +10 к максимуму здоровья."
+      "Амулет жизненной силы возвращён в лут башни с исходным весом 1. Слот «Ожерелье» в меню K сохраняется с инвентарём игрока и даёт +10 к максимуму здоровья.",
+      "Амулет удачи возвращён в лут башни с весом 1 в исходном пуле из 1–2 бросков. Тот же слот «Ожерелье» на K даёт +5 к minecraft:luck, пока амулет надет."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -309,14 +348,15 @@
       "Повторный вход через Horizon Offline Launcher: совпали позиция, 16 песка, 1 кроличья шкурка и верстак (78,71,193). Награды в этом рестарте не проверялись.",
       "В Stage10Natural южный маршрут по z≈200 дошёл до башни в обход медведей. Прогон остановлен до получения Divine Core по просьбе пользователя.",
       "Применены 10 инъекций и 4 модуля; 2 теста Horizon на износ и ремонт, 34 теста квестового ядра. Сборка Debug использует локальные архивы закреплённых ring и mimalloc.",
-      "Загрузчик Horizon принял Cisco 0.4.0. 393 амулета и 166 совпавших с предыдущей версией выпадений Divine Core на 4096 бросках. 3 теста слота и здоровья, 34 теста квестового ядра, сборка Debug."
+      "Загрузчик Horizon принял Cisco 0.4.0. 393 амулета и 166 совпавших с предыдущей версией выпадений Divine Core на 4096 бросках. 3 теста слота и здоровья, 34 теста квестового ядра, сборка Debug.",
+      "Загрузчик Horizon принял Cisco 0.5.0. На 4096 одинаковых бросках получено 377 амулетов удачи в 373 сундуках, остальной лут совпал по каждому зерну. 4 теста слота и атрибутов, 34 теста квестового ядра и сборка Debug."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
-      "Игровую приёмку нового Debug и пакета Cisco 0.4.0 проводит пользователь. Stage 10 остаётся PARTIAL."
+      "Игровую приёмку нового Debug и пакета Cisco 0.5.0 проводит пользователь. Stage 10 остаётся PARTIAL."
     ],
-    "next_action": "Сверить исходный эффект amuletof_luck и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем."
+    "next_action": "Сверить исходный эффект amuletof_swim_speed и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем."
   }
 }
