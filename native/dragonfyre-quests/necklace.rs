@@ -8,27 +8,42 @@ use horizon_world::attachments::{AttachmentCodec, AttachmentError, AttachmentTyp
 
 const MAX_HEALTH: &str = "minecraft:max_health";
 const LUCK: &str = "minecraft:luck";
+const KNOCKBACK_RESISTANCE: &str = "minecraft:knockback_resistance";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum Amulet {
+pub(super) enum Accessory {
     Vitality,
     Luck,
     SwimSpeed,
+    BracingBelt,
 }
 
-impl Amulet {
-    pub const ALL: [Self; 3] = [Self::Vitality, Self::Luck, Self::SwimSpeed];
+impl Accessory {
+    pub const ALL: [Self; 4] = [
+        Self::Vitality,
+        Self::Luck,
+        Self::SwimSpeed,
+        Self::BracingBelt,
+    ];
+
+    pub fn slot(self) -> Slot {
+        match self {
+            Self::Vitality | Self::Luck | Self::SwimSpeed => Slot::Necklace,
+            Self::BracingBelt => Slot::Belt,
+        }
+    }
 
     pub fn id(self) -> &'static str {
         match self {
             Self::Vitality => "cisco_mod:amuletof_vitality",
             Self::Luck => "cisco_mod:amuletof_luck",
             Self::SwimSpeed => "cisco_mod:amuletof_swim_speed",
+            Self::BracingBelt => "cisco_mod:beltof_bracing",
         }
     }
 
     pub fn from_id(id: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|amulet| amulet.id() == id)
+        Self::ALL.into_iter().find(|accessory| accessory.id() == id)
     }
 
     fn modifier(self) -> (&'static str, &'static str, f64) {
@@ -40,24 +55,66 @@ impl Amulet {
                 PlayerMotion::SWIM_AMULET_SYNC_MODIFIER,
                 0.0,
             ),
+            Self::BracingBelt => (KNOCKBACK_RESISTANCE, "dragonfyre_quests:bracing_belt", 0.5),
         }
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum Slot {
+    Necklace,
+    Belt,
+}
+
+impl Slot {
+    pub const ALL: [Self; 2] = [Self::Necklace, Self::Belt];
+
+    fn attachment(self) -> &'static AttachmentType<ItemStack> {
+        match self {
+            Self::Necklace => &NECKLACE,
+            Self::Belt => &BELT,
+        }
+    }
+}
+
+fn encode_stack(stack: &ItemStack) -> Result<horizon_world::nbt::Compound, AttachmentError> {
+    match item_to_nbt(stack) {
+        horizon_world::nbt::Tag::Compound(tag) => Ok(tag),
+        _ => Err(AttachmentError::Decode),
+    }
+}
+
+fn decode_slot(
+    tag: &horizon_world::nbt::Compound,
+    slot: Slot,
+) -> Result<ItemStack, AttachmentError> {
+    item_from_nbt(&horizon_world::nbt::Tag::Compound(tag.clone()))
+        .filter(|stack| {
+            stack.count == 1
+                && Accessory::from_id(&stack.item).is_some_and(|accessory| accessory.slot() == slot)
+        })
+        .ok_or(AttachmentError::Decode)
 }
 
 static NECKLACE: AttachmentType<ItemStack> = AttachmentType {
     namespace: "dragonfyre_quests",
     name: "necklace",
-    default: || ItemStack::new(Amulet::Vitality.id(), 1),
+    default: || ItemStack::new(Accessory::Vitality.id(), 1),
     codec: Some(AttachmentCodec {
-        encode: |stack| match item_to_nbt(stack) {
-            horizon_world::nbt::Tag::Compound(tag) => Ok(tag),
-            _ => Err(AttachmentError::Decode),
-        },
-        decode: |tag| {
-            item_from_nbt(&horizon_world::nbt::Tag::Compound(tag.clone()))
-                .filter(|stack| Amulet::from_id(&stack.item).is_some() && stack.count == 1)
-                .ok_or(AttachmentError::Decode)
-        },
+        encode: encode_stack,
+        decode: |tag| decode_slot(tag, Slot::Necklace),
+    }),
+    copy_on_death: true,
+    sync: false,
+};
+
+static BELT: AttachmentType<ItemStack> = AttachmentType {
+    namespace: "dragonfyre_quests",
+    name: "belt",
+    default: || ItemStack::new(Accessory::BracingBelt.id(), 1),
+    codec: Some(AttachmentCodec {
+        encode: encode_stack,
+        decode: |tag| decode_slot(tag, Slot::Belt),
     }),
     copy_on_death: true,
     sync: false,
@@ -66,8 +123,8 @@ static NECKLACE: AttachmentType<ItemStack> = AttachmentType {
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum Action {
     Inspect,
-    Equip(Amulet),
-    Remove,
+    Equip(Accessory),
+    Remove(Slot),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -79,12 +136,28 @@ pub(super) enum Error {
 }
 
 pub(super) struct View {
-    pub equipped: Option<ItemStack>,
+    necklace: Option<ItemStack>,
+    belt: Option<ItemStack>,
 }
 
-fn matches_amulet(cell: &Option<ItemStack>, amulet: Amulet) -> bool {
-    cell.as_ref()
-        .is_some_and(|stack| stack.item.as_ref() == amulet.id() && stack.count != 0)
+impl View {
+    fn read(attachments: &mut Attachments) -> Result<Self, Error> {
+        Ok(Self {
+            necklace: attachments
+                .get_existing(&NECKLACE)
+                .map_err(|_| Error::Storage)?,
+            belt: attachments
+                .get_existing(&BELT)
+                .map_err(|_| Error::Storage)?,
+        })
+    }
+
+    pub fn equipped(&self, slot: Slot) -> Option<&ItemStack> {
+        match slot {
+            Slot::Necklace => self.necklace.as_ref(),
+            Slot::Belt => self.belt.as_ref(),
+        }
+    }
 }
 
 fn move_item(
@@ -92,71 +165,87 @@ fn move_item(
     inventory: &mut [Option<ItemStack>],
     action: Action,
 ) -> Result<View, Error> {
-    let worn = attachments
-        .get_existing(&NECKLACE)
-        .map_err(|_| Error::Storage)?;
-    let equipped = match (action, worn) {
-        (Action::Equip(amulet), None) => {
+    let mut view = View::read(attachments)?;
+    let slot = match action {
+        Action::Inspect => return Ok(view),
+        Action::Equip(accessory) => accessory.slot(),
+        Action::Remove(slot) => slot,
+    };
+    let attachment = slot.attachment();
+    let worn = match slot {
+        Slot::Necklace => &mut view.necklace,
+        Slot::Belt => &mut view.belt,
+    };
+    match (action, worn.as_ref()) {
+        (Action::Equip(accessory), None) => {
             let source = inventory
                 .iter_mut()
-                .find(|cell| matches_amulet(cell, amulet))
+                .find(|cell| {
+                    cell.as_ref().is_some_and(|stack| {
+                        stack.item.as_ref() == accessory.id() && stack.count != 0
+                    })
+                })
                 .ok_or(Error::Missing)?;
             let stack = source.as_mut().unwrap();
-            let amulet = ItemStack {
+            let equipped = ItemStack {
                 count: 1,
                 ..stack.clone()
             };
             attachments
-                .set(&NECKLACE, amulet.clone())
+                .set(attachment, equipped.clone())
                 .map_err(|_| Error::Storage)?;
+            *worn = Some(equipped);
             stack.count -= 1;
             if stack.count == 0 {
                 *source = None;
             }
-            Some(amulet)
         }
-        (Action::Remove, Some(worn)) => {
+        (Action::Remove(_), Some(_)) => {
             let destination = inventory
                 .iter_mut()
                 .find(|cell| cell.is_none())
                 .ok_or(Error::Full)?;
-            attachments.remove(&NECKLACE).map_err(|_| Error::Storage)?;
-            *destination = Some(worn);
-            None
+            attachments.remove(attachment).map_err(|_| Error::Storage)?;
+            *destination = worn.take();
         }
-        (_, worn) => worn,
-    };
-    Ok(View { equipped })
+        _ => {}
+    }
+    Ok(view)
 }
 
-/// The guest's attachment is installed before the engine restores its current HP.
+/// The guest's accessories are installed before the engine restores its current HP.
 pub(crate) fn sync_bonus(attachments: &mut Attachments, body: &mut PlayerMotion) {
-    let equipped = attachments
-        .get_existing(&NECKLACE)
-        .ok()
-        .flatten()
-        .and_then(|stack| Amulet::from_id(&stack.item));
-    for amulet in Amulet::ALL {
-        let (attribute, modifier, amount) = amulet.modifier();
-        let Some(key) = body.attributes.key(attribute) else {
-            continue;
-        };
-        let wearing = equipped == Some(amulet);
-        if body.attributes.has_modifier(Some(key), modifier).ok() != Some(wearing) {
-            let _ = body.set_modifier(attribute, modifier, amount, "add_value", wearing);
+    for slot in Slot::ALL {
+        let equipped = attachments
+            .get_existing(slot.attachment())
+            .ok()
+            .flatten()
+            .and_then(|stack| Accessory::from_id(&stack.item));
+        for accessory in Accessory::ALL
+            .into_iter()
+            .filter(|accessory| accessory.slot() == slot)
+        {
+            let (attribute, modifier, amount) = accessory.modifier();
+            let Some(key) = body.attributes.key(attribute) else {
+                continue;
+            };
+            let wearing = equipped == Some(accessory);
+            if body.attributes.has_modifier(Some(key), modifier).ok() != Some(wearing) {
+                let _ = body.set_modifier(attribute, modifier, amount, "add_value", wearing);
+            }
         }
     }
 }
 
 pub(super) fn access(game: &mut Game<'_>, action: Action) -> Result<View, Error> {
-    if !Amulet::ALL
+    if !Accessory::ALL
         .iter()
-        .any(|amulet| game.items().get(amulet.id()).is_some())
+        .any(|accessory| game.items().get(accessory.id()).is_some())
     {
         return Err(Error::Unavailable);
     }
-    if let Action::Equip(amulet) = action
-        && game.items().get(amulet.id()).is_none()
+    if let Action::Equip(accessory) = action
+        && game.items().get(accessory.id()).is_none()
     {
         return Err(Error::Unavailable);
     }
@@ -214,7 +303,9 @@ pub(crate) fn prepare_owner_save(game: &mut Game<'_>) {
         return;
     };
     if let Some(live) = game.guest_attachments.get(&guest.uuid)
-        && (live.has(&NECKLACE) || guest.attachments.has(&NECKLACE))
+        && Slot::ALL
+            .into_iter()
+            .any(|slot| live.has(slot.attachment()) || guest.attachments.has(slot.attachment()))
     {
         guest.attachments = live.clone();
     }
@@ -233,10 +324,19 @@ pub(super) fn death_drop(
         && game
             .lan_acting_uuid
             .is_some_and(|uuid| context.player == Some(uuid))
-        && let Ok(Some(worn)) = game.player_attachments.get_existing(&NECKLACE)
-        && game.player_attachments.remove(&NECKLACE).is_ok()
     {
-        drops.push(worn);
+        drop_accessories(&mut game.player_attachments, drops);
+    }
+}
+
+fn drop_accessories(attachments: &mut Attachments, drops: &mut Vec<ItemStack>) {
+    for slot in Slot::ALL {
+        let attachment = slot.attachment();
+        if let Ok(Some(worn)) = attachments.get_existing(attachment)
+            && attachments.remove(attachment).is_ok()
+        {
+            drops.push(worn);
+        }
     }
 }
 
@@ -260,41 +360,49 @@ mod tests {
     #[test]
     fn necklace_transfer_is_idempotent_and_keeps_the_exact_stack() {
         let mut saved = Attachments::default();
-        let amulet = ItemStack::new(Amulet::Vitality.id(), 1);
+        let amulet = ItemStack::new(Accessory::Vitality.id(), 1);
         let mut inventory = [
             Some(ItemStack::new("minecraft:stone", 64)),
             Some(amulet.clone()),
         ];
         assert_eq!(
-            move_item(&mut saved, &mut inventory, Action::Equip(Amulet::Vitality))
-                .unwrap()
-                .equipped,
+            move_item(
+                &mut saved,
+                &mut inventory,
+                Action::Equip(Accessory::Vitality)
+            )
+            .unwrap()
+            .necklace,
             Some(amulet.clone())
         );
         assert!(inventory[1].is_none());
         assert_eq!(
-            move_item(&mut saved, &mut inventory, Action::Equip(Amulet::Vitality))
-                .unwrap()
-                .equipped,
+            move_item(
+                &mut saved,
+                &mut inventory,
+                Action::Equip(Accessory::Vitality)
+            )
+            .unwrap()
+            .necklace,
             Some(amulet.clone())
         );
         inventory[1] = Some(ItemStack::new("minecraft:dirt", 64));
         assert!(matches!(
-            move_item(&mut saved, &mut inventory, Action::Remove),
+            move_item(&mut saved, &mut inventory, Action::Remove(Slot::Necklace)),
             Err(Error::Full)
         ));
         assert_eq!(saved.get_existing(&NECKLACE).unwrap(), Some(amulet.clone()));
         inventory[1] = None;
         assert!(
-            move_item(&mut saved, &mut inventory, Action::Remove)
+            move_item(&mut saved, &mut inventory, Action::Remove(Slot::Necklace))
                 .unwrap()
-                .equipped
+                .necklace
                 .is_none()
         );
         assert!(
-            move_item(&mut saved, &mut inventory, Action::Remove)
+            move_item(&mut saved, &mut inventory, Action::Remove(Slot::Necklace))
                 .unwrap()
-                .equipped
+                .necklace
                 .is_none()
         );
         assert_eq!(inventory[1], Some(amulet));
@@ -303,11 +411,11 @@ mod tests {
     #[test]
     fn necklace_round_trips_through_player_attachments() {
         let mut original = Attachments::default();
-        let mut inventory = [Some(ItemStack::new(Amulet::Vitality.id(), 1))];
+        let mut inventory = [Some(ItemStack::new(Accessory::Vitality.id(), 1))];
         move_item(
             &mut original,
             &mut inventory,
-            Action::Equip(Amulet::Vitality),
+            Action::Equip(Accessory::Vitality),
         )
         .unwrap();
         let mut reopened = Attachments::from_nbt(original.to_nbt());
@@ -315,16 +423,21 @@ mod tests {
         assert!(
             move_item(&mut other_player, &mut inventory, Action::Inspect)
                 .unwrap()
-                .equipped
+                .necklace
                 .is_none()
         );
         assert_eq!(
             move_item(&mut reopened, &mut inventory, Action::Inspect)
                 .unwrap()
-                .equipped,
-            Some(ItemStack::new(Amulet::Vitality.id(), 1))
+                .necklace,
+            Some(ItemStack::new(Accessory::Vitality.id(), 1))
         );
-        move_item(&mut reopened, &mut inventory, Action::Remove).unwrap();
+        move_item(
+            &mut reopened,
+            &mut inventory,
+            Action::Remove(Slot::Necklace),
+        )
+        .unwrap();
         assert!(!Attachments::from_nbt(reopened.to_nbt()).has(&NECKLACE));
     }
 
@@ -334,8 +447,13 @@ mod tests {
             return;
         };
         let mut saved = Attachments::default();
-        let mut inventory = [Some(ItemStack::new(Amulet::Vitality.id(), 1))];
-        move_item(&mut saved, &mut inventory, Action::Equip(Amulet::Vitality)).unwrap();
+        let mut inventory = [Some(ItemStack::new(Accessory::Vitality.id(), 1))];
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::Vitality),
+        )
+        .unwrap();
         let mut reopened = Attachments::from_nbt(saved.to_nbt());
         sync_bonus(&mut reopened, &mut motion);
         sync_bonus(&mut reopened, &mut motion);
@@ -352,7 +470,12 @@ mod tests {
             )
             .unwrap();
         assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 34.0);
-        move_item(&mut reopened, &mut inventory, Action::Remove).unwrap();
+        move_item(
+            &mut reopened,
+            &mut inventory,
+            Action::Remove(Slot::Necklace),
+        )
+        .unwrap();
         sync_bonus(&mut reopened, &mut motion);
         assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 24.0);
         assert_eq!(motion.health.health(), 24.0);
@@ -360,20 +483,20 @@ mod tests {
 
     #[test]
     fn luck_uses_the_same_slot_and_adds_five_once_after_reopening() {
-        let vitality = ItemStack::new(Amulet::Vitality.id(), 1);
-        let luck = ItemStack::new(Amulet::Luck.id(), 1);
+        let vitality = ItemStack::new(Accessory::Vitality.id(), 1);
+        let luck = ItemStack::new(Accessory::Luck.id(), 1);
         let mut inventory = [Some(vitality.clone()), Some(luck.clone())];
         let mut saved = Attachments::default();
-        move_item(&mut saved, &mut inventory, Action::Equip(Amulet::Luck)).unwrap();
+        move_item(&mut saved, &mut inventory, Action::Equip(Accessory::Luck)).unwrap();
         let mut reopened = Attachments::from_nbt(saved.to_nbt());
         assert_eq!(inventory, [Some(vitality.clone()), None]);
         let result = move_item(
             &mut reopened,
             &mut inventory,
-            Action::Equip(Amulet::Vitality),
+            Action::Equip(Accessory::Vitality),
         )
         .unwrap();
-        assert_eq!(result.equipped, Some(luck.clone()));
+        assert_eq!(result.necklace, Some(luck.clone()));
         assert_eq!(inventory, [Some(vitality.clone()), None]);
 
         let Some(mut motion) = test_motion() else {
@@ -387,12 +510,17 @@ mod tests {
         assert_eq!(motion.attribute(LUCK).unwrap(), 6.0);
         assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 20.0);
 
-        move_item(&mut reopened, &mut inventory, Action::Remove).unwrap();
+        move_item(
+            &mut reopened,
+            &mut inventory,
+            Action::Remove(Slot::Necklace),
+        )
+        .unwrap();
         assert_eq!(inventory[1], Some(luck));
         move_item(
             &mut reopened,
             &mut inventory,
-            Action::Equip(Amulet::Vitality),
+            Action::Equip(Accessory::Vitality),
         )
         .unwrap();
         sync_bonus(&mut reopened, &mut motion);
@@ -404,10 +532,15 @@ mod tests {
     fn swim_amulet_restores_and_syncs_to_the_client_without_changing_water_efficiency() {
         use horizon_client::lan::attributes::{apply, take_dirty};
 
-        let swim = ItemStack::new(Amulet::SwimSpeed.id(), 1);
+        let swim = ItemStack::new(Accessory::SwimSpeed.id(), 1);
         let mut inventory = [Some(swim.clone())];
         let mut saved = Attachments::default();
-        move_item(&mut saved, &mut inventory, Action::Equip(Amulet::SwimSpeed)).unwrap();
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::SwimSpeed),
+        )
+        .unwrap();
         assert!(inventory[0].is_none());
         let mut reopened = Attachments::from_nbt(saved.to_nbt());
         assert_eq!(
@@ -428,10 +561,97 @@ mod tests {
         assert_eq!(client.attribute(MAX_HEALTH).unwrap(), 20.0);
         assert_eq!(client.attribute(LUCK).unwrap(), 0.0);
 
-        move_item(&mut reopened, &mut inventory, Action::Remove).unwrap();
+        move_item(
+            &mut reopened,
+            &mut inventory,
+            Action::Remove(Slot::Necklace),
+        )
+        .unwrap();
         sync_bonus(&mut reopened, &mut server);
         apply(&mut client.attributes, &take_dirty(&mut server.attributes));
         assert_eq!(client.dragonfyre_swim_factor(), 1.0);
         assert_eq!(inventory[0], Some(swim));
+    }
+
+    #[test]
+    fn bracing_belt_uses_its_own_saved_slot_and_preserves_armor_resistance() {
+        let belt = ItemStack::new(Accessory::BracingBelt.id(), 1);
+        let amulet = ItemStack::new(Accessory::Vitality.id(), 1);
+        let mut inventory = [Some(belt.clone()), Some(amulet.clone())];
+        let mut saved = Attachments::default();
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::Vitality),
+        )
+        .unwrap();
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::BracingBelt),
+        )
+        .unwrap();
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::BracingBelt),
+        )
+        .unwrap();
+        assert_eq!(inventory, [None, None]);
+
+        let mut reopened = Attachments::from_nbt(saved.to_nbt());
+        let view = View::read(&mut reopened).unwrap();
+        assert_eq!(view.equipped(Slot::Belt), Some(&belt));
+        assert_eq!(view.equipped(Slot::Necklace), Some(&amulet));
+
+        let Some(mut motion) = test_motion() else {
+            return;
+        };
+        motion
+            .set_modifier(
+                KNOCKBACK_RESISTANCE,
+                "minecraft:armor.boots",
+                0.1,
+                "add_value",
+                true,
+            )
+            .unwrap();
+        sync_bonus(&mut reopened, &mut motion);
+        sync_bonus(&mut reopened, &mut motion);
+        assert_eq!(motion.attribute(KNOCKBACK_RESISTANCE).unwrap(), 0.6);
+        assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 30.0);
+
+        move_item(&mut reopened, &mut inventory, Action::Remove(Slot::Belt)).unwrap();
+        sync_bonus(&mut reopened, &mut motion);
+        assert_eq!(motion.attribute(KNOCKBACK_RESISTANCE).unwrap(), 0.1);
+        assert_eq!(motion.attribute(MAX_HEALTH).unwrap(), 30.0);
+        assert_eq!(inventory, [Some(belt), None]);
+        assert!(!Attachments::from_nbt(reopened.to_nbt()).has(&BELT));
+    }
+
+    #[test]
+    fn equipped_belt_and_necklace_drop_once_and_reject_other_slot_stacks() {
+        let belt = ItemStack::new(Accessory::BracingBelt.id(), 1);
+        let amulet = ItemStack::new(Accessory::Luck.id(), 1);
+        let mut inventory = [Some(belt.clone()), Some(amulet.clone())];
+        let mut saved = Attachments::default();
+        move_item(&mut saved, &mut inventory, Action::Equip(Accessory::Luck)).unwrap();
+        move_item(
+            &mut saved,
+            &mut inventory,
+            Action::Equip(Accessory::BracingBelt),
+        )
+        .unwrap();
+        assert!(decode_slot(&encode_stack(&belt).unwrap(), Slot::Necklace).is_err());
+        assert!(decode_slot(&encode_stack(&amulet).unwrap(), Slot::Belt).is_err());
+
+        let mut drops = Vec::new();
+        drop_accessories(&mut saved, &mut drops);
+        drop_accessories(&mut saved, &mut drops);
+        assert_eq!(drops, [amulet, belt]);
+        let mut reopened = Attachments::from_nbt(saved.to_nbt());
+        let view = View::read(&mut reopened).unwrap();
+        assert!(view.equipped(Slot::Necklace).is_none());
+        assert!(view.equipped(Slot::Belt).is_none());
     }
 }

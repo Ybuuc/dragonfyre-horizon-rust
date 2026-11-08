@@ -31,17 +31,20 @@ ITEMS = {
     'amuletof_vitality': ('Amulet of Vitality', 'Амулет жизненной силы', 'emerald'),
     'amuletof_luck': ('Amulet of Luck', 'Амулет удачи', 'emerald'),
     'amuletof_swim_speed': ('Amulet of Swim Speed', 'Амулет скорости плавания', 'emerald'),
+    'beltof_bracing': ('Belt of Bracing', 'Пояс стойкости', 'leather'),
     'brilliant_diamond': ('Brilliant Diamond', 'Сверкающий алмаз', 'diamond'),
     'raw_brightsteel': ('Raw Brightsteel', 'Необработанная светосталь', 'raw_gold'),
     'brightsteel_ingot': ('Brightsteel Ingot', 'Слиток светостали', 'gold_ingot'),
 }
 TOWER_LOOT = 'cisco_mod:chests/tower_loot'
-AMULETS = {
+ACCESSORIES = {
     'amuletof_vitality': ('amuvitality', '+10 maximum health while equipped.',
                          '+10 к максимуму здоровья при экипировке.'),
     'amuletof_luck': ('amuluck', '+5 luck while equipped.', '+5 к удаче при экипировке.'),
     'amuletof_swim_speed': ('amuswim', '+20% swim speed while equipped.',
                            '+20% к скорости плавания при экипировке.'),
+    'beltof_bracing': ('beltanim', '+50% knockback resistance while equipped.',
+                      '+50% сопротивления отбрасыванию при экипировке.'),
 }
 
 
@@ -104,7 +107,7 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.6.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.7.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
@@ -118,7 +121,7 @@ def content(jar):
         if item == 'arcane_apparatus':
             definition.update(max_stack_size=1, rarity='epic')
             definition['components']['minecraft:max_damage'] = 50
-        if item in AMULETS:
+        if item in ACCESSORIES:
             definition.update(max_stack_size=1, rarity='rare')
             definition['components']['minecraft:item_model'] = f'cisco_mod:{item}'
             definition['components']['minecraft:lore'] = [
@@ -126,20 +129,20 @@ def content(jar):
             ]
         files[DATA + f'horizon/item/{item}.json'] = json_bytes(definition)
     assets = 'assets/cisco_mod/'
-    for item, (texture, _, _) in AMULETS.items():
+    for item, (texture, _, _) in ACCESSORIES.items():
         files[assets + f'items/{item}.json'] = json_bytes({
             'model': {'type': 'minecraft:model', 'model': f'cisco_mod:item/{item}'},
         })
         for path in (f'models/item/{item}.json', f'textures/item/{texture}.png'):
             files[assets + path] = jar.read(assets + path)
-    for texture in ('amuluck', 'amuswim'):
+    for texture in ('amuluck', 'amuswim', 'beltanim'):
         animation = assets + f'textures/item/{texture}.png.mcmeta'
         files[animation] = jar.read(animation)
     for index, lang in enumerate(('en_us', 'ru_ru')):
         path = f'assets/cisco_mod/lang/{lang}.json'
         words = json.loads(files[path])
         words.update({f'item.cisco_mod.{key}': item[index] for key, item in ITEMS.items()})
-        for item, (_, en, ru) in AMULETS.items():
+        for item, (_, en, ru) in ACCESSORIES.items():
             words[f'item.cisco_mod.{item}.description'] = (en, ru)[index]
         files[path] = json_bytes(words)
 

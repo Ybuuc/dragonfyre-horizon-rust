@@ -1,5 +1,5 @@
 use super::{Game, HudBatch, NativeScreenView, dragonfyre_necklace as necklace};
-use necklace::{Action, Amulet, Error, View};
+use necklace::{Accessory, Action, Error, Slot, View};
 use std::sync::{
     Mutex,
     mpsc::{self, Receiver, TryRecvError},
@@ -7,7 +7,7 @@ use std::sync::{
 
 const SCREEN: &str = "dragonfyre_quests:necklace";
 const WIDTH: f32 = 252.0;
-const HEIGHT: f32 = 130.0;
+const HEIGHT: f32 = 169.0;
 
 #[derive(Default)]
 struct Client {
@@ -67,7 +67,29 @@ fn panel([x, y, w, h]: [f32; 4]) -> [f32; 2] {
 }
 
 fn button([x, y]: [f32; 2], row: usize) -> [f32; 4] {
-    [x + 174.0, y + 32.0 + 25.0 * row as f32, 66.0, 20.0]
+    let top = if row == 3 {
+        125.0
+    } else {
+        32.0 + 25.0 * row as f32
+    };
+    [x + 174.0, y + top, 66.0, 20.0]
+}
+
+fn rows(view: &View) -> impl Iterator<Item = (usize, Accessory, Action)> + '_ {
+    Accessory::ALL
+        .into_iter()
+        .enumerate()
+        .filter_map(|(index, accessory)| {
+            let slot = accessory.slot();
+            match view.equipped(slot) {
+                Some(stack) if stack.item.as_ref() == accessory.id() => {
+                    let row = if slot == Slot::Necklace { 0 } else { index };
+                    Some((row, accessory, Action::Remove(slot)))
+                }
+                Some(_) => None,
+                None => Some((index, accessory, Action::Equip(accessory))),
+            }
+        })
 }
 
 pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenView<'_>) {
@@ -96,13 +118,16 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
         0xbdb2a4,
         false,
     );
-    let equipped = client.view.as_ref().and_then(|v| v.equipped.as_ref());
-    if client.view.is_some() {
-        for (index, amulet) in Amulet::ALL.into_iter().enumerate() {
-            if equipped.is_some_and(|stack| stack.item.as_ref() != amulet.id()) {
-                continue;
-            }
-            let row = if equipped.is_some() { 0 } else { index };
+    game.native_text(
+        batch,
+        tr("Belt slot", "Слот «Пояс»"),
+        [x + 12.0, y + 109.0],
+        0xf1c46c,
+        false,
+    );
+    if let Some(view) = &client.view {
+        for (row, accessory, action) in rows(view) {
+            let equipped = view.equipped(accessory.slot());
             let bounds = button([x, y], row);
             let line = bounds[1];
             game.native_fill(batch, [x + 12.0, line, 20.0, 20.0], 0xff4b3831);
@@ -110,20 +135,24 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             if let Some(stack) = equipped {
                 game.native_item_stack(batch, stack, icon, 16.0);
             } else {
-                game.native_item(batch, amulet.id(), icon, 16.0);
+                game.native_item(batch, accessory.id(), icon, 16.0);
             }
-            let (name, effect) = match amulet {
-                Amulet::Vitality => (
+            let (name, effect) = match accessory {
+                Accessory::Vitality => (
                     tr("Amulet of Vitality", "Амулет жизненной силы"),
                     tr("+10 max health", "+10 к максимуму здоровья"),
                 ),
-                Amulet::Luck => (
+                Accessory::Luck => (
                     tr("Amulet of Luck", "Амулет удачи"),
                     tr("+5 luck", "+5 к удаче"),
                 ),
-                Amulet::SwimSpeed => (
+                Accessory::SwimSpeed => (
                     tr("Amulet of Swim Speed", "Амулет скорости плавания"),
                     tr("+20% swim speed", "+20% к скорости плавания"),
+                ),
+                Accessory::BracingBelt => (
+                    tr("Belt of Bracing", "Пояс стойкости"),
+                    tr("+50% knockback resist.", "+50% защиты от толчков"),
                 ),
             };
             game.native_text(batch, name, [x + 38.0, line], 0xf6eee0, false);
@@ -134,7 +163,7 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
                 0xff6e502b
             };
             game.native_fill(batch, bounds, fill);
-            let label = if equipped.is_some() {
+            let label = if matches!(action, Action::Remove(_)) {
                 tr("Remove", "Снять")
             } else {
                 tr("Equip", "Надеть")
@@ -148,7 +177,10 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
     } else {
         match client.error {
             Some(Error::Unavailable) => tr("Slot unavailable", "Слот недоступен"),
-            Some(Error::Missing) => tr("Amulet missing from inventory", "Амулета нет в инвентаре"),
+            Some(Error::Missing) => tr(
+                "Accessory missing from inventory",
+                "Аксессуара нет в инвентаре",
+            ),
             Some(Error::Full) => tr(
                 "Free a slot in your inventory",
                 "Освободите место в инвентаре",
@@ -157,7 +189,7 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             None => "",
         }
     };
-    game.native_text(batch, status, [x + 12.0, y + 114.0], 0xf1c46c, false);
+    game.native_text(batch, status, [x + 12.0, y + 153.0], 0xf1c46c, false);
 }
 
 pub(super) fn click(
@@ -182,15 +214,9 @@ pub(super) fn click(
     if client.waiting.is_none()
         && let Some(view) = &client.view
     {
-        let action = if view.equipped.is_some() {
-            hit(0).then_some(Action::Remove)
-        } else {
-            Amulet::ALL
-                .into_iter()
-                .enumerate()
-                .find(|(row, _)| hit(*row))
-                .map(|(_, amulet)| Action::Equip(amulet))
-        };
+        let action = rows(view)
+            .find(|(row, _, _)| hit(*row))
+            .map(|(_, _, action)| action);
         if let Some(action) = action {
             client.request(game, action);
         }
