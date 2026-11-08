@@ -143,6 +143,49 @@
         "log": "work/stage10-natural-qa/game/instances/dragonfyre/logs/latest.log",
         "result": "player killed by zombie at start; core not reached"
       },
+      "latest_attempt": {
+        "checked_at": "2026-11-08T07:20:18+05:00",
+        "world": "Stage10Natural (work/stage10-natural-qa)",
+        "debug_sha256": "b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793",
+        "cisco_package_sha256": "2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d",
+        "mode": "survival",
+        "commands_enabled": false,
+        "natural_progress": {
+          "spruce_logs": 4,
+          "crafting_table_position": [78, 71, 193],
+          "wooden_pickaxe": true,
+          "wooden_sword": true,
+          "cobblestone": 17,
+          "cinnabar": 2,
+          "coal": 3,
+          "stone_pickaxe": true,
+          "stone_sword": true,
+          "torches": 8,
+          "sealed_shelter": [80, 68, 192],
+          "survived_night_in_shelter": true,
+          "furthest_west_position": [-338.5, 63.0, 173.5]
+        },
+        "deaths": [
+          "polar bear family near (-330, 63, 164) during the western overland route",
+          "second polar bear death while trying to recover the dropped gear"
+        ],
+        "gear_lost": [
+          "stone_pickaxe",
+          "stone_sword",
+          "8 torches",
+          "wooden_pickaxe",
+          "wooden_sword",
+          "2 cinnabar",
+          "3 spruce_planks",
+          "2 stick",
+          "1 coal"
+        ],
+        "food_recovery": "killed and ate a rabbit naturally; food 20, health regenerating",
+        "divine_core_obtained": false,
+        "ruby_crafted": false,
+        "user_intervention": "player revived/moved externally near spawn; this attempt is not a clean natural E2E and must not be claimed as VERIFIED",
+        "next_attempt": "re-craft tools and torches, route west along z~195 to avoid the polar bears, approach the tower from the south and tunnel to the chest (-503,103,114)"
+      },
       "original_parity_issue": {
         "ingredient": "cisco_mod:arcane_apparatus",
         "original": "returned with one more damage until broken",
@@ -161,10 +204,10 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Завершить полный Survival E2E без подготовленных ингредиентов: добыть все компоненты рубина в обычном выживании на том же Debug-клиенте (SHA b9740f4f), скрафтить рубин, сдать квесты и проверить сохранение после перезапуска. Это закроет приёмочный критерий Issue #1 «естественная добываемость». Параллельно — зафиксировать несоответствие Arcane Apparatus.",
+  "next_task": "Продолжить натуральный Survival E2E в Stage10Natural: восстановить снаряжение у (78,71,193), пройти на запад южнее медведей (z≈195), подойти к башне с юга и выкопать туннель к сундуку (−503,103,114) вне радиуса спавнеров. После получения Divine Core — изготовить рубин, сдать квесты и проверить сохранение после перезапуска. Статус остаётся PARTIAL: зафиксировано внешнее вмешательство пользователя и потери снаряжения.",
   "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
   "handoff": {
-    "updated_at": "2026-11-08T13:30:00Z",
+    "updated_at": "2026-11-08T07:20:18+05:00",
     "status": "PARTIAL",
     "active_task": "Stage 10 — Issue #1: завершить полный Survival E2E без заранее подготовленного инвентаря",
     "related_issues": [
@@ -173,7 +216,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "a2dfdb0ff05e6463bdb9b16752cbca0447bc2e39"
+      "commit": "6a821c6e995878420b1a2664bc18abd7866760f4"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -181,21 +224,26 @@
       "Пакет Cisco SHA-256 верифицирован: 2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d.",
       "Stage 10 E2E с подготовленными ингредиентами: ядро из сундука (−503,103,114), крафт рубина, 2 обмена, восстановление незабранной награды после рестарта. 6 транзакций, нет дублей. Статус: PARTIAL (ингредиенты частично подготовлены заранее).",
       "DRAGONFYRE.md и STAGE10-SURVIVAL.md обновлены, 6 скриншотов и логи сохранены в outputs/native-stage-10.",
-      "Stage10Natural QA: мир запущен через Launcher с пустым стартовым инвентарём, башня подтверждена, но персонаж погиб от зомби до достижения сундука."
+      "Stage10Natural QA: мир запущен через Launcher с пустым стартовым инвентарём, башня подтверждена, но персонаж погиб от зомби до достижения сундука.",
+      "Натуральный прогон Stage10Natural: добыто 4 бревна ели, 17 булыжника, 2 киновари, 3 угля; скрафчены деревянные и каменные кирка/меч, 8 факелов; построен и запечатан схрон (80,68,192), пережита ночь.",
+      "Натуральный переход на запад дошёл до (−338.5,63,173.5); персонаж дважды погиб от белых медведей у (−330,63,164) и потерял каменные инструменты, факелы и часть ресурсов. Divine Core не добыт.",
+      "Пища восстановлена естественно охотой на кролика; здоровье восстанавливается, прогон продолжается."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
       "Get-FileHash horizon-client-debug.exe → b9740f4fc93632a27395f2185076b917c8f3bc49ed3b8c147b0dc9979ba3e793 (MATCH).",
       "Get-FileHash Dragonfyre-cisco_mod.hmod → 2abe823aace6cfe47eb2493102d129a283285a09c0d36054772941bc548f831d (MATCH).",
       "survival-second.json и survival-resume.json подтверждают: 1 монета, 32 ветчины, 1 рубин, crafting_table, 6 транзакций после рестарта.",
-      "Launcher log (stage10-natural-qa): DragonfyreQA joined at (45.5, 72.0, 159.5), killed by zombie — natural run started, tower not reached."
+      "Launcher log (stage10-natural-qa): DragonfyreQA joined at (45.5, 72.0, 159.5), killed by zombie — natural run started, tower not reached.",
+      "Естественность вводов: control.py разрешает только обычные вводы и наблюдения; give, tp и чат-команды не использовались. При этом зафиксировано внешнее вмешательство пользователя (возрождение/перемещение игрока), поэтому текущий прогон не считается чистым натуральным E2E."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Несоответствие оригиналу: Arcane Apparatus расходуется (порт) вместо возврата с износом (оригинал). Текущий крафт рубина требует 9 аппаратов/36 алмазов; оригинал — 1 аппарат/4 алмаза. Нужно исправить или явно задокументировать как PARTIAL.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
-      "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2."
+      "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
+      "Маршрут к башне перекрыт семейством белых медведей у (−330,63,164): дважды потеряно снаряжение. Нужен обход южнее (z≈195) и повторный крафт инструментов."
     ],
-    "next_action": "Запустить полный Survival без pre-staged ингредиентов: тот же Debug-клиент (SHA b9740f4f), seed 9001, work/stage10-natural-qa/. Дойти до башни, взять Divine Core, добыть все ингредиенты рубина естественным путём, скрафтить, сдать квесты, проверить рестарт. Параллельно — исследовать и задокументировать несоответствие Arcane Apparatus относительно cisco_mod_legacy_2.5.jar."
+    "next_action": "Продолжить Stage10Natural: восстановить инструменты и факелы у верстака (78,71,193), идти на запад по z≈195 (южнее медведей), подойти к башне с юга (x≈−503, z≈130), выкопать туннель к сундуку (−503,103,114) вне радиуса спавнеров, забрать Divine Core, сохранить мир и проверить рестарт. Полный E2E с крафтом рубина остаётся PARTIAL; параллельно — задокументировать несоответствие Arcane Apparatus."
   }
 }
