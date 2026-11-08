@@ -5,4 +5,5 @@ fn dragonfyre_journal_click(
     canceled: &mut bool,
 ) {
     crate::game::native_hooks::dragonfyre_journal::click(game, screen, button, canceled);
+    crate::game::native_hooks::dragonfyre_necklace_screen::click(game, screen, button, canceled);
 }

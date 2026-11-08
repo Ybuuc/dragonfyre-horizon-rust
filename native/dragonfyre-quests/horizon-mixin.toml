@@ -146,3 +146,33 @@ bindings = [
   { name = "input", ty = "&Input<'_>", value = "input" },
 ]
 
+[[module]]
+id = "vitality_necklace"
+file = "crates/horizon-client/src/game/native_hooks.rs"
+name = "dragonfyre_necklace"
+source = "necklace.rs"
+
+[[module]]
+id = "vitality_necklace_screen"
+file = "crates/horizon-client/src/game/native_hooks.rs"
+name = "dragonfyre_necklace_screen"
+source = "necklace_screen.rs"
+
+[[injection]]
+id = "save_owner_necklace"
+target = "horizon_client::game::lan::Game<'_>::store_owner"
+kind = "HEAD"
+helper = "necklace_save.rs"
+bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" }]
+
+[[injection]]
+id = "drop_necklace_on_death"
+target = "horizon_client::game::native_hooks::Game<'_>::native_loot_drops"
+kind = "HEAD"
+helper = "necklace_drop.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "context", ty = "&horizon_client::mod_api::NativeLootDrops<'_>", value = "context" },
+  { name = "drops", ty = "&mut Vec<ItemStack>", value = "&mut *drops" },
+]
+

@@ -4,4 +4,5 @@ fn dragonfyre_journal_draw(
     screen: &horizon_client::mod_api::NativeScreenView<'_>,
 ) {
     crate::game::native_hooks::dragonfyre_journal::draw(game, batch, screen);
+    crate::game::native_hooks::dragonfyre_necklace_screen::draw(game, batch, screen);
 }

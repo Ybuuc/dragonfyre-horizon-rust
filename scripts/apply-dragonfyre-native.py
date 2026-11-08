@@ -37,6 +37,23 @@ def ensure_distinct(source: Path, output: Path, label: str) -> None:
         raise ValueError(f"Output must not overlap {label}: {source} / {output}")
 
 
+def wire_necklace_health(applied: Path) -> str:
+    # The pre-health point is inside a let-else binding in enter_guest.
+    # The pinned mixin engine cannot capture that local.
+    path = applied / "crates/horizon-client/src/game/lan_actions.rs"
+    source = path.read_bytes()
+    anchor = b"        let _ = motion.set_health(g.health, false);"
+    if source.count(anchor) != 1:
+        raise ValueError("Expected exactly one guest health restoration point")
+    newline = b"\r\n" if anchor + b"\r\n" in source else b"\n"
+    hook = (
+        b"        super::native_hooks::dragonfyre_necklace::sync_bonus("
+        b"&mut self.player_attachments, &mut motion);"
+    )
+    path.write_bytes(source.replace(anchor, hook + newline + anchor, 1))
+    return digest(path)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -154,10 +171,19 @@ def main() -> int:
     report["verified_engine_files"] = verified
     report["engine_mismatches"] = mismatches
     report["status"] = "ok" if not mismatches else "engine_mismatch"
+    if not mismatches:
+        try:
+            report["necklace_health_source_sha256"] = wire_necklace_health(applied)
+        except (OSError, ValueError) as error:
+            report["status"] = "necklace_integration_failed"
+            report["error"] = str(error)
     (run / "apply-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     if mismatches:
         print(f"FAIL: {len(mismatches)} generated engine files differ: {mismatches}", file=sys.stderr)
+        return 1
+    if report["status"] != "ok":
+        print(f"FAIL: {report['error']}", file=sys.stderr)
         return 1
 
     print(f"PASS: mixins applied; {verified} engine source files match GitHub.", flush=True)

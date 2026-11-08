@@ -49,7 +49,8 @@ fn main() -> Result<(), Error> {
     let pack_file = std::path::PathBuf::from(args.next().ok_or("content pack file")?);
     let package = Package::read(&pack_file)?;
     let content = Content::read(&pack_file, &package.manifest)?;
-    assert_eq!(content.items.len(), 17);
+    assert_eq!(content.items.len(), 18);
+    assert!(content.items.iter().any(|item| item.id == "cisco_mod:amuletof_vitality"));
     let relative = "data/cisco_mod/loot_table/chests/tower_loot.json";
     let pack = scratch.join("pack");
     let table = "cisco_mod:chests/tower_loot";
