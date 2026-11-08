@@ -298,6 +298,45 @@
       ],
       "manual_gameplay": "assigned to user",
       "loot_scope": "Horizon fishing reads player luck; ordinary container and entity rolls still use base luck zero. The source tower pools have fixed weights and no luck-dependent entries or bonus rolls."
+    },
+    "swim_speed_amulet_port": {
+      "status": "IMPLEMENTED_AUTOMATED_CHECKS_PASSED",
+      "checked_at": "2026-11-08T15:07:55+05:00",
+      "source_commit": "a0d8593d7d6ca05d366249e57cabe5ed85de7202",
+      "item": "cisco_mod:amuletof_swim_speed",
+      "original_jar_sha256": "9c3a310c676c2dbb54f7207006c4b9bb7189825be8731b9b1ebe839440d86100",
+      "original_curios_slot": "necklace",
+      "slot_capacity": 1,
+      "original_attribute": "forge:swim_speed",
+      "propulsion_multiplier": 1.2,
+      "movement_scope": "Water propulsion, upward input in water and lava, downward input in water. Vanilla drag and horizontal lava propulsion preserved.",
+      "interface_key": "K",
+      "interface_scope": "integrated single-player owner",
+      "original_tower_pool_weight": 1,
+      "original_tower_pool_rolls": {
+        "min": 1,
+        "max": 2
+      },
+      "loot_probe": {
+        "seeds": 4096,
+        "swim_speed_amulets": 438,
+        "chests_with_swim_speed_amulet": 427,
+        "unchanged_luck_amulets": 377,
+        "unchanged_vitality_amulets": 393,
+        "unchanged_divine_core_drops": 166,
+        "other_loot_same_per_seed": true
+      },
+      "horizon_tests_passed": 8,
+      "quest_engine_tests_passed": 34,
+      "cisco_package_version": "0.6.0",
+      "cisco_package_sha256": "0b9951398de60fe0f6137f45f56a608dc507c6d38e52cd40ff9e917b12cf2e2f",
+      "debug_binary_sha256": "1518dc784b28622cfd591a1f2b36dc0330e6b229f6805e97f55af1d319a43879",
+      "local_build_run": "dragonfyre-native-c6bzv5b0",
+      "build_reused_pinned_native_archives": [
+        "ring 0.17.14",
+        "libmimalloc-sys 0.1.49"
+      ],
+      "manual_gameplay": "assigned to user"
     }
   },
   "known_blockers": [
@@ -308,10 +347,10 @@
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete"
   ],
-  "next_task": "Сверить исходный эффект amuletof_swim_speed и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем.",
-  "synced_report_source": "Local direct verification 2026-11-08: Get-FileHash + cargo test + git log. DRAGONFYRE.md and STAGE10-SURVIVAL.md updated locally.",
+  "next_task": "Сверить в исходном Cisco JAR эффект и правила Curios для beltof_bracing из того же пула сундука башни и спроектировать отдельный слот пояса. Ручная приёмка Stage 10 остаётся за пользователем.",
+  "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.6.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-08T14:45:48+05:00",
+    "updated_at": "2026-11-08T15:07:55+05:00",
     "status": "PARTIAL",
     "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
     "related_issues": [
@@ -320,7 +359,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "45a657552bedd1d6c5f6ed5d3355e96b290590de"
+      "commit": "a0d8593d7d6ca05d366249e57cabe5ed85de7202"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -336,7 +375,8 @@
       "На том же Debug повторный запуск Stage10Natural через «Играть» восстановил обычный инвентарь, позицию и поставленный верстак.",
       "Перенесён Arcane Apparatus: один предмет в стопке, 50 применений с износом после крафта, запрет ремонта в сетке. Собраны Debug-клиент и пакет Cisco 0.3.0.",
       "Амулет жизненной силы возвращён в лут башни с исходным весом 1. Слот «Ожерелье» в меню K сохраняется с инвентарём игрока и даёт +10 к максимуму здоровья.",
-      "Амулет удачи возвращён в лут башни с весом 1 в исходном пуле из 1–2 бросков. Тот же слот «Ожерелье» на K даёт +5 к minecraft:luck, пока амулет надет."
+      "Амулет удачи возвращён в лут башни с весом 1 в исходном пуле из 1–2 бросков. Тот же слот «Ожерелье» на K даёт +5 к minecraft:luck, пока амулет надет.",
+      "Амулет скорости плавания добавлен в общий слот «Ожерелье» на K. В исходном пуле сундука башни сохранены вес 1, один предмет за выпадение и 1–2 броска. Экипировка умножает импульс в воде и вертикальные толчки в жидкости на 1,2 по правилам Forge. Состояние слота сохраняется с игроком и передаётся клиенту через синхронизацию атрибутов."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -349,14 +389,15 @@
       "В Stage10Natural южный маршрут по z≈200 дошёл до башни в обход медведей. Прогон остановлен до получения Divine Core по просьбе пользователя.",
       "Применены 10 инъекций и 4 модуля; 2 теста Horizon на износ и ремонт, 34 теста квестового ядра. Сборка Debug использует локальные архивы закреплённых ring и mimalloc.",
       "Загрузчик Horizon принял Cisco 0.4.0. 393 амулета и 166 совпавших с предыдущей версией выпадений Divine Core на 4096 бросках. 3 теста слота и здоровья, 34 теста квестового ядра, сборка Debug.",
-      "Загрузчик Horizon принял Cisco 0.5.0. На 4096 одинаковых бросках получено 377 амулетов удачи в 373 сундуках, остальной лут совпал по каждому зерну. 4 теста слота и атрибутов, 34 теста квестового ядра и сборка Debug."
+      "Загрузчик Horizon принял Cisco 0.5.0. На 4096 одинаковых бросках получено 377 амулетов удачи в 373 сундуках, остальной лут совпал по каждому зерну. 4 теста слота и атрибутов, 34 теста квестового ядра и сборка Debug.",
+      "Загрузчик Horizon принял Cisco 0.6.0. На 4096 одинаковых бросках получено 438 амулетов скорости плавания в 427 сундуках. Остальной лут совпал по каждому зерну. Прошли 8 целевых тестов Horizon и 34 теста квестового ядра. Собран Debug 1518dc78."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
-      "Игровую приёмку нового Debug и пакета Cisco 0.5.0 проводит пользователь. Stage 10 остаётся PARTIAL."
+      "Игровую приёмку нового Debug и пакета Cisco 0.6.0 проводит пользователь. Stage 10 остаётся PARTIAL."
     ],
-    "next_action": "Сверить исходный эффект amuletof_swim_speed и перенести его в слот «Ожерелье» с исходным весом в луте башни. Ручная приёмка Stage 10 остаётся за пользователем."
+    "next_action": "Сверить в исходном Cisco JAR эффект и правила Curios для beltof_bracing из того же пула сундука башни и спроектировать отдельный слот пояса. Ручная приёмка Stage 10 остаётся за пользователем."
   }
 }
