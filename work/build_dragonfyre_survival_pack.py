@@ -29,11 +29,17 @@ ITEMS = {
     'bright_essence': ('Bright Essence', 'Светлая эссенция', 'glowstone_dust'),
     'arcane_apparatus': ('Arcane Apparatus', 'Магический прибор', 'blaze_rod'),
     'amuletof_vitality': ('Amulet of Vitality', 'Амулет жизненной силы', 'emerald'),
+    'amuletof_luck': ('Amulet of Luck', 'Амулет удачи', 'emerald'),
     'brilliant_diamond': ('Brilliant Diamond', 'Сверкающий алмаз', 'diamond'),
     'raw_brightsteel': ('Raw Brightsteel', 'Необработанная светосталь', 'raw_gold'),
     'brightsteel_ingot': ('Brightsteel Ingot', 'Слиток светостали', 'gold_ingot'),
 }
 TOWER_LOOT = 'cisco_mod:chests/tower_loot'
+AMULETS = {
+    'amuletof_vitality': ('amuvitality', '+10 maximum health while equipped.',
+                         '+10 к максимуму здоровья при экипировке.'),
+    'amuletof_luck': ('amuluck', '+5 luck while equipped.', '+5 к удаче при экипировке.'),
+}
 
 
 def json_bytes(data):
@@ -95,7 +101,7 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.4.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.5.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
@@ -109,26 +115,28 @@ def content(jar):
         if item == 'arcane_apparatus':
             definition.update(max_stack_size=1, rarity='epic')
             definition['components']['minecraft:max_damage'] = 50
-        if item == 'amuletof_vitality':
+        if item in AMULETS:
             definition.update(max_stack_size=1, rarity='rare')
-            definition['components']['minecraft:item_model'] = 'cisco_mod:amuletof_vitality'
+            definition['components']['minecraft:item_model'] = f'cisco_mod:{item}'
             definition['components']['minecraft:lore'] = [
-                {'translate': 'item.cisco_mod.amuletof_vitality.description'},
+                {'translate': f'item.cisco_mod.{item}.description'},
             ]
         files[DATA + f'horizon/item/{item}.json'] = json_bytes(definition)
     assets = 'assets/cisco_mod/'
-    files[assets + 'items/amuletof_vitality.json'] = json_bytes({
-        'model': {'type': 'minecraft:model', 'model': 'cisco_mod:item/amuletof_vitality'},
-    })
-    for path in ('models/item/amuletof_vitality.json', 'textures/item/amuvitality.png'):
-        files[assets + path] = jar.read(assets + path)
+    for item, (texture, _, _) in AMULETS.items():
+        files[assets + f'items/{item}.json'] = json_bytes({
+            'model': {'type': 'minecraft:model', 'model': f'cisco_mod:item/{item}'},
+        })
+        for path in (f'models/item/{item}.json', f'textures/item/{texture}.png'):
+            files[assets + path] = jar.read(assets + path)
+    animation = assets + 'textures/item/amuluck.png.mcmeta'
+    files[animation] = jar.read(animation)
     for index, lang in enumerate(('en_us', 'ru_ru')):
         path = f'assets/cisco_mod/lang/{lang}.json'
         words = json.loads(files[path])
         words.update({f'item.cisco_mod.{key}': item[index] for key, item in ITEMS.items()})
-        words['item.cisco_mod.amuletof_vitality.description'] = (
-            '+10 maximum health while equipped.', '+10 к максимуму здоровья при экипировке.',
-        )[index]
+        for item, (_, en, ru) in AMULETS.items():
+            words[f'item.cisco_mod.{item}.description'] = (en, ru)[index]
         files[path] = json_bytes(words)
 
     for name in RECIPES:

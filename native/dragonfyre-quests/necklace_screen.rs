@@ -1,5 +1,5 @@
 use super::{Game, HudBatch, NativeScreenView, dragonfyre_necklace as necklace};
-use necklace::{Action, Error, View};
+use necklace::{Action, Amulet, Error, View};
 use std::sync::{
     Mutex,
     mpsc::{self, Receiver, TryRecvError},
@@ -66,8 +66,8 @@ fn panel([x, y, w, h]: [f32; 4]) -> [f32; 2] {
     [x + (w - WIDTH) * 0.5, y + (h - HEIGHT) * 0.5]
 }
 
-fn button([x, y]: [f32; 2]) -> [f32; 4] {
-    [x + 146.0, y + 49.0, 94.0, 20.0]
+fn button([x, y]: [f32; 2], row: usize) -> [f32; 4] {
+    [x + 174.0, y + 32.0 + 25.0 * row as f32, 66.0, 20.0]
 }
 
 pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenView<'_>) {
@@ -96,39 +96,48 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
         0xbdb2a4,
         false,
     );
-    game.native_fill(batch, [x + 12.0, y + 34.0, 26.0, 26.0], 0xff4b3831);
     let equipped = client.view.as_ref().and_then(|v| v.equipped.as_ref());
-    if let Some(stack) = equipped {
-        game.native_item_stack(batch, stack, [x + 17.0, y + 39.0], 16.0);
-    }
-    let name = if equipped.is_some() {
-        tr("Amulet of Vitality", "Амулет жизненной силы")
-    } else {
-        tr("Empty", "Пусто")
-    };
-    game.native_text(batch, name, [x + 44.0, y + 35.0], 0xf6eee0, false);
-    game.native_text(
-        batch,
-        tr("+10 max health", "+10 к максимуму здоровья"),
-        [x + 12.0, y + 72.0],
-        0xbdb2a4,
-        false,
-    );
     if client.view.is_some() {
-        let bounds = button([x, y]);
-        let fill = if client.waiting.is_some() {
-            0xff332f2c
-        } else {
-            0xff6e502b
-        };
-        game.native_fill(batch, bounds, fill);
-        let label = if equipped.is_some() {
-            tr("Remove", "Снять")
-        } else {
-            tr("Equip", "Надеть")
-        };
-        let bx = bounds[0] + (bounds[2] - game.native_text_width(label)) * 0.5;
-        game.native_text(batch, label, [bx, bounds[1] + 6.0], 0xf6eee0, false);
+        for (index, amulet) in Amulet::ALL.into_iter().enumerate() {
+            if equipped.is_some_and(|stack| stack.item.as_ref() != amulet.id()) {
+                continue;
+            }
+            let row = if equipped.is_some() { 0 } else { index };
+            let bounds = button([x, y], row);
+            let line = bounds[1];
+            game.native_fill(batch, [x + 12.0, line, 20.0, 20.0], 0xff4b3831);
+            let icon = [x + 14.0, line + 2.0];
+            if let Some(stack) = equipped {
+                game.native_item_stack(batch, stack, icon, 16.0);
+            } else {
+                game.native_item(batch, amulet.id(), icon, 16.0);
+            }
+            let (name, effect) = match amulet {
+                Amulet::Vitality => (
+                    tr("Amulet of Vitality", "Амулет жизненной силы"),
+                    tr("+10 max health", "+10 к максимуму здоровья"),
+                ),
+                Amulet::Luck => (
+                    tr("Amulet of Luck", "Амулет удачи"),
+                    tr("+5 luck", "+5 к удаче"),
+                ),
+            };
+            game.native_text(batch, name, [x + 38.0, line], 0xf6eee0, false);
+            game.native_text(batch, effect, [x + 38.0, line + 10.0], 0xbdb2a4, false);
+            let fill = if client.waiting.is_some() {
+                0xff332f2c
+            } else {
+                0xff6e502b
+            };
+            game.native_fill(batch, bounds, fill);
+            let label = if equipped.is_some() {
+                tr("Remove", "Снять")
+            } else {
+                tr("Equip", "Надеть")
+            };
+            let bx = bounds[0] + (bounds[2] - game.native_text_width(label)) * 0.5;
+            game.native_text(batch, label, [bx, line + 6.0], 0xf6eee0, false);
+        }
     }
     let status = if client.waiting.is_some() {
         tr("Working…", "Подождите…")
@@ -157,20 +166,29 @@ pub(super) fn click(
         return;
     }
     *canceled = true;
-    let [x, y, w, h] = button(panel(screen.rect));
-    let [mx, my] = screen.mouse;
-    if mouse_button != 0 || !(x..x + w).contains(&mx) || !(y..y + h).contains(&my) {
+    if mouse_button != 0 {
         return;
     }
+    let hit = |row| {
+        let [x, y, w, h] = button(panel(screen.rect), row);
+        let [mx, my] = screen.mouse;
+        (x..x + w).contains(&mx) && (y..y + h).contains(&my)
+    };
     let mut client = CLIENT.lock().unwrap();
     if client.waiting.is_none()
         && let Some(view) = &client.view
     {
         let action = if view.equipped.is_some() {
-            Action::Remove
+            hit(0).then_some(Action::Remove)
         } else {
-            Action::Equip
+            Amulet::ALL
+                .into_iter()
+                .enumerate()
+                .find(|(row, _)| hit(*row))
+                .map(|(_, amulet)| Action::Equip(amulet))
         };
-        client.request(game, action);
+        if let Some(action) = action {
+            client.request(game, action);
+        }
     }
 }
