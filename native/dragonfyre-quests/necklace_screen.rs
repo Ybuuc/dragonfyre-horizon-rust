@@ -7,7 +7,7 @@ use std::sync::{
 
 const SCREEN: &str = "dragonfyre_quests:necklace";
 const WIDTH: f32 = 252.0;
-const HEIGHT: f32 = 169.0;
+const HEIGHT: f32 = 212.0;
 
 #[derive(Default)]
 struct Client {
@@ -67,10 +67,10 @@ fn panel([x, y, w, h]: [f32; 4]) -> [f32; 2] {
 }
 
 fn button([x, y]: [f32; 2], row: usize) -> [f32; 4] {
-    let top = if row == 3 {
-        125.0
-    } else {
-        32.0 + 25.0 * row as f32
+    let top = match row {
+        3 => 125.0,
+        4 => 168.0,
+        _ => 32.0 + 25.0 * row as f32,
     };
     [x + 174.0, y + top, 66.0, 20.0]
 }
@@ -125,6 +125,13 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
         0xf1c46c,
         false,
     );
+    game.native_text(
+        batch,
+        tr("Head accessory slot", "Слот «Голова»"),
+        [x + 12.0, y + 152.0],
+        0xf1c46c,
+        false,
+    );
     if let Some(view) = &client.view {
         for (row, accessory, action) in rows(view) {
             let equipped = view.equipped(accessory.slot());
@@ -153,6 +160,10 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
                 Accessory::BracingBelt => (
                     tr("Belt of Bracing", "Пояс стойкости"),
                     tr("+50% knockback resist.", "+50% защиты от толчков"),
+                ),
+                Accessory::EmperorCrown => (
+                    tr("Crown of the Emperor", "Корона императора"),
+                    tr("+6 armor", "+6 к броне"),
                 ),
             };
             game.native_text(batch, name, [x + 38.0, line], 0xf6eee0, false);
@@ -189,7 +200,7 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             None => "",
         }
     };
-    game.native_text(batch, status, [x + 12.0, y + 153.0], 0xf1c46c, false);
+    game.native_text(batch, status, [x + 12.0, y + 196.0], 0xf1c46c, false);
 }
 
 pub(super) fn click(

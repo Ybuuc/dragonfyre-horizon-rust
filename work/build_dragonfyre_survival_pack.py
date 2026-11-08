@@ -32,6 +32,7 @@ ITEMS = {
     'amuletof_luck': ('Amulet of Luck', 'Амулет удачи', 'emerald'),
     'amuletof_swim_speed': ('Amulet of Swim Speed', 'Амулет скорости плавания', 'emerald'),
     'beltof_bracing': ('Belt of Bracing', 'Пояс стойкости', 'leather'),
+    'crownofthe_emperor': ('Crown of the Emperor', 'Корона императора', 'gold_ingot'),
     'brilliant_diamond': ('Brilliant Diamond', 'Сверкающий алмаз', 'diamond'),
     'raw_brightsteel': ('Raw Brightsteel', 'Необработанная светосталь', 'raw_gold'),
     'brightsteel_ingot': ('Brightsteel Ingot', 'Слиток светостали', 'gold_ingot'),
@@ -45,6 +46,8 @@ ACCESSORIES = {
                            '+20% к скорости плавания при экипировке.'),
     'beltof_bracing': ('beltanim', '+50% knockback resistance while equipped.',
                       '+50% сопротивления отбрасыванию при экипировке.'),
+    'crownofthe_emperor': ('emperorcrownanim', '+6 armor while equipped.',
+                          '+6 к броне при экипировке.'),
 }
 
 
@@ -107,7 +110,7 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.7.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.8.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
@@ -122,7 +125,8 @@ def content(jar):
             definition.update(max_stack_size=1, rarity='epic')
             definition['components']['minecraft:max_damage'] = 50
         if item in ACCESSORIES:
-            definition.update(max_stack_size=1, rarity='rare')
+            rarity = 'epic' if item == 'crownofthe_emperor' else 'rare'
+            definition.update(max_stack_size=1, rarity=rarity)
             definition['components']['minecraft:item_model'] = f'cisco_mod:{item}'
             definition['components']['minecraft:lore'] = [
                 {'translate': f'item.cisco_mod.{item}.description'},
@@ -135,7 +139,7 @@ def content(jar):
         })
         for path in (f'models/item/{item}.json', f'textures/item/{texture}.png'):
             files[assets + path] = jar.read(assets + path)
-    for texture in ('amuluck', 'amuswim', 'beltanim'):
+    for texture in ('amuluck', 'amuswim', 'beltanim', 'emperorcrownanim'):
         animation = assets + f'textures/item/{texture}.png.mcmeta'
         files[animation] = jar.read(animation)
     for index, lang in enumerate(('en_us', 'ru_ru')):

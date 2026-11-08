@@ -7,6 +7,7 @@ use horizon_client::{
 use horizon_world::attachments::{AttachmentCodec, AttachmentError, AttachmentType, Attachments};
 
 const MAX_HEALTH: &str = "minecraft:max_health";
+const ARMOR: &str = "minecraft:armor";
 const LUCK: &str = "minecraft:luck";
 const KNOCKBACK_RESISTANCE: &str = "minecraft:knockback_resistance";
 
@@ -16,20 +17,23 @@ pub(super) enum Accessory {
     Luck,
     SwimSpeed,
     BracingBelt,
+    EmperorCrown,
 }
 
 impl Accessory {
-    pub const ALL: [Self; 4] = [
+    pub const ALL: [Self; 5] = [
         Self::Vitality,
         Self::Luck,
         Self::SwimSpeed,
         Self::BracingBelt,
+        Self::EmperorCrown,
     ];
 
     pub fn slot(self) -> Slot {
         match self {
             Self::Vitality | Self::Luck | Self::SwimSpeed => Slot::Necklace,
             Self::BracingBelt => Slot::Belt,
+            Self::EmperorCrown => Slot::Head,
         }
     }
 
@@ -39,6 +43,7 @@ impl Accessory {
             Self::Luck => "cisco_mod:amuletof_luck",
             Self::SwimSpeed => "cisco_mod:amuletof_swim_speed",
             Self::BracingBelt => "cisco_mod:beltof_bracing",
+            Self::EmperorCrown => "cisco_mod:crownofthe_emperor",
         }
     }
 
@@ -56,6 +61,7 @@ impl Accessory {
                 0.0,
             ),
             Self::BracingBelt => (KNOCKBACK_RESISTANCE, "dragonfyre_quests:bracing_belt", 0.5),
+            Self::EmperorCrown => (ARMOR, "dragonfyre_quests:emperor_crown", 6.0),
         }
     }
 }
@@ -64,15 +70,17 @@ impl Accessory {
 pub(super) enum Slot {
     Necklace,
     Belt,
+    Head,
 }
 
 impl Slot {
-    pub const ALL: [Self; 2] = [Self::Necklace, Self::Belt];
+    pub const ALL: [Self; 3] = [Self::Necklace, Self::Belt, Self::Head];
 
     fn attachment(self) -> &'static AttachmentType<ItemStack> {
         match self {
             Self::Necklace => &NECKLACE,
             Self::Belt => &BELT,
+            Self::Head => &HEAD,
         }
     }
 }
@@ -120,6 +128,18 @@ static BELT: AttachmentType<ItemStack> = AttachmentType {
     sync: false,
 };
 
+static HEAD: AttachmentType<ItemStack> = AttachmentType {
+    namespace: "dragonfyre_quests",
+    name: "head",
+    default: || ItemStack::new(Accessory::EmperorCrown.id(), 1),
+    codec: Some(AttachmentCodec {
+        encode: encode_stack,
+        decode: |tag| decode_slot(tag, Slot::Head),
+    }),
+    copy_on_death: true,
+    sync: false,
+};
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum Action {
     Inspect,
@@ -138,6 +158,7 @@ pub(super) enum Error {
 pub(super) struct View {
     necklace: Option<ItemStack>,
     belt: Option<ItemStack>,
+    head: Option<ItemStack>,
 }
 
 impl View {
@@ -149,6 +170,9 @@ impl View {
             belt: attachments
                 .get_existing(&BELT)
                 .map_err(|_| Error::Storage)?,
+            head: attachments
+                .get_existing(&HEAD)
+                .map_err(|_| Error::Storage)?,
         })
     }
 
@@ -156,6 +180,7 @@ impl View {
         match slot {
             Slot::Necklace => self.necklace.as_ref(),
             Slot::Belt => self.belt.as_ref(),
+            Slot::Head => self.head.as_ref(),
         }
     }
 }
@@ -175,6 +200,7 @@ fn move_item(
     let worn = match slot {
         Slot::Necklace => &mut view.necklace,
         Slot::Belt => &mut view.belt,
+        Slot::Head => &mut view.head,
     };
     match (action, worn.as_ref()) {
         (Action::Equip(accessory), None) => {
@@ -344,16 +370,21 @@ fn drop_accessories(attachments: &mut Attachments, drops: &mut Vec<ItemStack>) {
 mod tests {
     use super::*;
 
-    fn test_motion() -> Option<PlayerMotion> {
-        use horizon_client::{assets::Assets, motion::MotionResources};
-        use horizon_core::geometry::Vec3;
+    use horizon_client::{assets::Assets, motion::MotionResources};
+    use horizon_core::geometry::Vec3;
+
+    fn test_resources() -> Option<MotionResources> {
         let Some(root) = std::env::var_os("HORIZON_TEST_RESOURCES") else {
-            eprintln!("prepared resources required for the necklace attribute tests");
+            eprintln!("prepared resources required for the accessory attribute tests");
             return None;
         };
         let root = std::path::PathBuf::from(root);
         let assets = Assets::load(&root).unwrap();
-        let resources = MotionResources::load(&root, &assets).unwrap();
+        Some(MotionResources::load(&root, &assets).unwrap())
+    }
+
+    fn test_motion() -> Option<PlayerMotion> {
+        let resources = test_resources()?;
         Some(PlayerMotion::new(&resources, Vec3::ZERO).unwrap())
     }
 
@@ -653,5 +684,82 @@ mod tests {
         let view = View::read(&mut reopened).unwrap();
         assert!(view.equipped(Slot::Necklace).is_none());
         assert!(view.equipped(Slot::Belt).is_none());
+    }
+
+    #[test]
+    fn emperor_crown_restores_with_other_slots_and_reduces_damage_over_helmet() {
+        use horizon_client::{
+            health::HealthRules,
+            lan::attributes::{apply, take_dirty},
+        };
+
+        let crown = ItemStack::new(Accessory::EmperorCrown.id(), 1);
+        let belt = ItemStack::new(Accessory::BracingBelt.id(), 1);
+        let amulet = ItemStack::new(Accessory::Vitality.id(), 1);
+        let mut inventory = [
+            Some(crown.clone()),
+            Some(belt.clone()),
+            Some(amulet.clone()),
+        ];
+        let mut saved = Attachments::default();
+        for accessory in [
+            Accessory::EmperorCrown,
+            Accessory::BracingBelt,
+            Accessory::Vitality,
+        ] {
+            move_item(&mut saved, &mut inventory, Action::Equip(accessory)).unwrap();
+        }
+        assert_eq!(inventory, [None, None, None]);
+        let mut reopened = Attachments::from_nbt(saved.to_nbt());
+        let view = View::read(&mut reopened).unwrap();
+        assert_eq!(view.equipped(Slot::Head), Some(&crown));
+        assert_eq!(view.equipped(Slot::Belt), Some(&belt));
+        assert_eq!(view.equipped(Slot::Necklace), Some(&amulet));
+        assert!(decode_slot(&encode_stack(&crown).unwrap(), Slot::Belt).is_err());
+
+        let Some(resources) = test_resources() else {
+            return;
+        };
+        let helmet = || {
+            let mut player = PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
+            player
+                .set_modifier(ARMOR, "minecraft:armor.helmet", 3.0, "add_value", true)
+                .unwrap();
+            player
+        };
+        let mut without_crown = helmet();
+        let mut with_crown = helmet();
+        sync_bonus(&mut reopened, &mut with_crown);
+        sync_bonus(&mut reopened, &mut with_crown);
+        assert_eq!(with_crown.attribute(ARMOR).unwrap(), 9.0);
+        assert_eq!(with_crown.attribute(KNOCKBACK_RESISTANCE).unwrap(), 0.5);
+        assert_eq!(with_crown.attribute(MAX_HEALTH).unwrap(), 30.0);
+
+        let mut client = PlayerMotion::new(&resources, Vec3::ZERO).unwrap();
+        apply(
+            &mut client.attributes,
+            &take_dirty(&mut with_crown.attributes),
+        );
+        assert_eq!(client.attribute(ARMOR).unwrap(), 9.0);
+
+        let attack = resources.health.damage.id("minecraft:mob_attack").unwrap();
+        for player in [&mut with_crown, &mut without_crown] {
+            assert!(
+                player
+                    .hurt(&resources.health, HealthRules::default(), attack, 8.0)
+                    .unwrap()
+            );
+        }
+        assert!(
+            with_crown.hurt_log.last().unwrap().taken
+                < without_crown.hurt_log.last().unwrap().taken
+        );
+
+        move_item(&mut reopened, &mut inventory, Action::Remove(Slot::Head)).unwrap();
+        sync_bonus(&mut reopened, &mut with_crown);
+        assert_eq!(with_crown.attribute(ARMOR).unwrap(), 3.0);
+        assert_eq!(with_crown.attribute(KNOCKBACK_RESISTANCE).unwrap(), 0.5);
+        assert_eq!(inventory, [Some(crown), None, None]);
+        assert!(!Attachments::from_nbt(reopened.to_nbt()).has(&HEAD));
     }
 }
