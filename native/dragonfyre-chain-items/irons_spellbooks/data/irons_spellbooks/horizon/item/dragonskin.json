@@ -1,0 +1,10 @@
+{
+  "template": "minecraft:phantom_membrane",
+  "max_stack_size": 64,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.irons_spellbooks.dragonskin"
+    },
+    "minecraft:item_model": "minecraft:phantom_membrane"
+  }
+}

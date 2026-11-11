@@ -1,0 +1,10 @@
+{
+  "template": "minecraft:prismarine_shard",
+  "max_stack_size": 64,
+  "components": {
+    "minecraft:item_name": {
+      "translate": "item.irons_spellbooks.arcane_essence"
+    },
+    "minecraft:item_model": "minecraft:prismarine_shard"
+  }
+}

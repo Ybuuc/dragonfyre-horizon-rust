@@ -9,6 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from dragonfyre_nbt import Tag, decode, encode
 
 ROOT = Path(__file__).resolve().parents[1]
+IRONS_PACK = ROOT/'native/dragonfyre-chain-items/irons_spellbooks'
 DATA = 'data/cisco_mod/'
 RECIPES = (
     'radiant_ruby', 'dark_core_rec', 'ember_core', 'wind_core_rec', 'light_core',
@@ -53,6 +54,33 @@ ACCESSORIES = {
 
 def json_bytes(data):
     return (json.dumps(data, ensure_ascii=False, indent=2) + '\n').encode()
+
+
+def true_dragons_breath_recipe():
+    """Original shapeless recipe from Cisco.zs lines 102-114 (docs/STAGE10-DRAGON-SOURCES.md)."""
+    return {
+        'type': 'minecraft:crafting_shapeless', 'category': 'misc',
+        'ingredients': ['irons_spellbooks:dragonskin'] * 4
+                       + ['minecraft:dragon_breath']
+                       + ['minecraft:blaze_powder'] * 2,
+        'result': {'id': 'cisco_mod:true_dragons_breath'},
+    }
+
+
+def irons_spellbooks_pack(output):
+    """Zip the static irons_spellbooks registry pack (dragonskin, essence, dragon loot)."""
+    source = IRONS_PACK
+    files = sorted(path for path in source.rglob('*') if path.is_file())
+    if source / 'horizon-mod.toml' not in files:
+        raise ValueError('irons_spellbooks pack has no manifest')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with ZipFile(output, 'w', compression=ZIP_DEFLATED) as pack:
+        for path in files:
+            pack.write(path, path.relative_to(source).as_posix())
+    with ZipFile(output) as pack:
+        if pack.testzip() is not None:
+            raise ValueError('Invalid irons_spellbooks pack')
+    return output
 
 
 def recipe(data):
@@ -110,7 +138,7 @@ def content(jar):
     source = ROOT/'native/dragonfyre-chain-items/cisco_mod'
     files = {path.relative_to(source).as_posix(): path.read_bytes()
              for path in source.rglob('*') if path.is_file()}
-    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.8.0"')
+    files['horizon-mod.toml'] = files['horizon-mod.toml'].replace(b'version = "0.1.0"', b'version = "0.9.0"')
 
     for item, (_, _, template) in ITEMS.items():
         base = 'minecraft:' + template
@@ -153,13 +181,7 @@ def content(jar):
     for name in RECIPES:
         original = json.loads(jar.read(DATA + f'recipes/{name}.json'))
         files[DATA + f'recipe/{name}.json'] = json_bytes(recipe(original))
-    # Keep the source Ruby recipe intact. The pre-existing dragon breath can
-    # supply its unavailable mod-specific ingredient after reaching the End.
-    files[DATA + 'recipe/true_dragons_breath.json'] = json_bytes({
-        'type': 'minecraft:crafting_shapeless', 'category': 'misc',
-        'ingredients': ['minecraft:dragon_breath'] * 4,
-        'result': {'id': 'cisco_mod:true_dragons_breath'},
-    })
+    files[DATA + 'recipe/true_dragons_breath.json'] = json_bytes(true_dragons_breath_recipe())
     loot = json.loads(jar.read(DATA + 'loot_tables/chests/tower_loot.json'))
     available = ITEMS.keys() | {'divine_core', 'radiant_ruby', 'champion_coin'}
     for pool in loot['pools']:
@@ -228,6 +250,10 @@ def main():
             raise ValueError('Invalid content pack')
     print(args.output)
     print('SHA256', hashlib.sha256(args.output.read_bytes()).hexdigest())
+    # The Cisco recipe uses irons_spellbooks:dragonskin, so both packs ship together.
+    irons = irons_spellbooks_pack(args.output.with_name('Dragonfyre-irons_spellbooks.hmod'))
+    print(irons)
+    print('SHA256', hashlib.sha256(irons.read_bytes()).hexdigest())
 
 
 if __name__ == '__main__':
