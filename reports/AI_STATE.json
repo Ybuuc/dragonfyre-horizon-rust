@@ -433,7 +433,11 @@
       "manual_gameplay": "assigned to user"
     },
     "true_dragons_breath_source": {
-      "status": "ORIGINAL_RULES_IDENTIFIED_PORT_PENDING",
+      "status": "PORT_IMPLEMENTED_NOT_LOADED_IN_HORIZON",
+      "documentation": "docs/STAGE10-DRAGON-SOURCES.md",
+      "source_provenance": "REPORTED: supplied by the project owner 2026-11-12; originals exist only on the local Windows PC",
+      "crafttweaker_lines": "102-114",
+      "crafttweaker_recipe_type": "shapeless",
       "crafttweaker_source": "scripts/Cisco.zs",
       "crafttweaker_sha256": "2faed6595c1cf65d56992c5359e4c2c8747a86c1af2d4d6aec57847f3df559b4",
       "original_ingredients": {
@@ -450,7 +454,24 @@
         "min": 0,
         "max": 2
       },
-      "irons_spellbooks_jar_sha256": "b3a2cc3eac6990dd5badb845bb2e2b74ff89539bc54d793045ee1af6c70cd155"
+      "irons_spellbooks_jar_sha256": "b3a2cc3eac6990dd5badb845bb2e2b74ff89539bc54d793045ee1af6c70cd155",
+      "arcane_essence_pool": {
+        "item": "irons_spellbooks:arcane_essence",
+        "base_count": {
+          "min": 28,
+          "max": 45
+        },
+        "looting_count_provider": {
+          "min": 0,
+          "max": 3
+        }
+      },
+      "ender_dragon_hook": "ASSUMPTION: unconditional, drops on every dragon death; repeat-kill conditions UNKNOWN",
+      "looting_function": "original minecraft:looting_enchant written as minecraft:enchanted_count_increase (Horizon 26.x data format); loader acceptance not verified",
+      "packs": {
+        "cisco_mod": "0.9.0 (not built here: needs cisco_mod_legacy_2.5.jar)",
+        "irons_spellbooks": "0.1.0 (native/dragonfyre-chain-items/irons_spellbooks)"
+      }
     }
   },
   "known_blockers": [
@@ -459,12 +480,12 @@
     "Windows audio 0xc0000008 unresolved; all tests used muted configuration (HORIZON_NO_AUDIO)",
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete",
-    "The True Dragon's Breath recipe uses a temporary four-bottle recipe. Original Cisco.zs requires four Iron's Spellbooks dragonskin, one vanilla dragon breath and two blaze powder."
+    "Ender Dragon extra-loot hook (dragonskin, arcane essence) is an unconditional assumption: repeat-kill conditions of Iron's Spellbooks 3.16.2 are unknown. Cisco 0.9.0 and irons_spellbooks packs have not been loaded in Horizon yet."
   ],
-  "next_task": "На Windows, где лежат оригинальные файлы, только для чтения вывести из scripts/Cisco.zs точный блок рецепта true_dragons_breath (тип и раскладка) и JSON irons_spellbooks:entities/additional_dragon_loot с условиями повторного убийства дракона, записав SHA-256 источников. Затем портировать предмет драконьей кожи, рецепт и лут Эндер-дракона в пакет Cisco, собрать и проверить через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем.",
+  "next_task": "На Windows собрать work/build_dragonfyre_survival_pack.py с cisco_mod_legacy_2.5.jar (создаёт Dragonfyre-cisco_mod.hmod 0.9.0 и Dragonfyre-irons_spellbooks.hmod), прогнать check_dragonfyre_survival_pack.rs и python work/check_dragonfyre_dragon_pack.py с готовым hmod, затем проверить загрузку обоих пакетов через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-12T04:27:00+05:00",
+    "updated_at": "2026-11-12T04:50:00+05:00",
     "status": "PARTIAL",
     "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
     "related_issues": [
@@ -473,7 +494,7 @@
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "a125e1950598e754c6df20bba2fa1e59af48a7e3"
+      "commit": "f5d0632f261d6a654683828ad2a2edcc50ed3343"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -492,7 +513,8 @@
       "Амулет удачи возвращён в лут башни с весом 1 в исходном пуле из 1–2 бросков. Тот же слот «Ожерелье» на K даёт +5 к minecraft:luck, пока амулет надет.",
       "Амулет скорости плавания добавлен в общий слот «Ожерелье» на K. В исходном пуле сундука башни сохранены вес 1, один предмет за выпадение и 1–2 броска. Экипировка умножает импульс в воде и вертикальные толчки в жидкости на 1,2 по правилам Forge. Состояние слота сохраняется с игроком и передаётся клиенту через синхронизацию атрибутов.",
       "Пояс стойкости из сундука башни надевается в отдельный слот «Пояс» через K и даёт +0,5 к сопротивлению отбрасыванию. Пояс и ожерелье сохраняются одновременно, в исходной таблице сохранены вес 1, один предмет за выпадение и 1–2 броска.",
-      "Корона императора из сундука башни надевается через K в отдельный слот «Голова». Исходные +6 к броне суммируются с бронёй шлема, пояс и ожерелье можно носить одновременно. Сохранены эпическая редкость, размер стопки 1, вес 1 в пуле и 1–2 броска."
+      "Корона императора из сундука башни надевается через K в отдельный слот «Голова». Исходные +6 к броне суммируются с бронёй шлема, пояс и ожерелье можно носить одновременно. Сохранены эпическая редкость, размер стопки 1, вес 1 в пуле и 1–2 броска.",
+      "Сеанс 2026-11-12: данные Cisco.zs (строки 102–114) и правила additional_dragon_loot записаны с SHA-256 в docs/STAGE10-DRAGON-SOURCES.md (REPORTED, переданы владельцем). Временный рецепт заменён оригинальным бесформенным (4 драконьи кожи, дыхание, 2 огненных порошка), пакет Cisco 0.9.0. Добавлен пакет irons_spellbooks: предметы dragonskin и arcane_essence (внешний вид — заменители, PARTIAL), таблица additional_dragon_loot с двумя независимыми пулами и подключение к minecraft:entities/ender_dragon без условий (предположение). PARTIAL: в Horizon не загружалось."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -512,15 +534,19 @@
       "Сеанс 2026-11-12 (облачный Linux-checkout, main 629c6ce): рабочий коммит a125e19 доступен в GitHub и является предком HEAD; 30cfe26 — его чекпоинт, 629c6ce — только правки AGENTS.md. Код после a125e19 не менялся.",
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline на 629c6ce → 34 passed, 0 failed (Cargo 1.97.0, Linux; предыдущая запись — Windows, Cargo 1.99.1). Сборка Horizon, пакет Cisco и игровой запуск в этом сеансе не проверялись.",
       "Issues #1 и #2 открыты по REST API; новых комментариев после 2026-11-08 нет. Критерии приёмки обоих по-прежнему не закрыты.",
-      "Рецепт true_dragons_breath в work/build_dragonfyre_survival_pack.py остаётся временным (4 × minecraft:dragon_breath), как описано в STAGE10-SURVIVAL.md. В отслеживаемых файлах нет предмета irons_spellbooks:dragonskin и записи дополнительного лута Эндер-дракона (git grep). Исходные правила (4 кожи, 1 дыхание, 2 огненных порошка; лут 6–10 плюс 0–2 за добычу) остаются REPORTED: тексты Cisco.zs и jar-ов в GitHub и в облачной среде отсутствуют, поиск в открытых источниках достоверного подтверждения не дал."
+      "Состояние до порта (проверка перед получением данных от владельца): рецепт true_dragons_breath в work/build_dragonfyre_survival_pack.py был временным (4 × minecraft:dragon_breath). В отслеживаемых файлах не было предмета irons_spellbooks:dragonskin и записи дополнительного лута Эндер-дракона (git grep). Исходные правила (4 кожи, 1 дыхание, 2 огненных порошка; лут 6–10 плюс 0–2 за добычу) остаются REPORTED: тексты Cisco.zs и jar-ов в GitHub и в облачной среде отсутствуют, поиск в открытых источниках достоверного подтверждения не дал.",
+      "После получения данных от владельца: python work/check_dragonfyre_dragon_pack.py → OK, 43 структурные проверки без Horizon (рецепт против блока Cisco.zs из документа, правила лута, состав и локализация пакета irons_spellbooks). Скрипт отклонил 10 заведомо неверных вариантов: 3 кожи, нет дыхания, shaped вместо shapeless, максимум кожи 9, добыча эссенции до 2, обратный порядок функций, add=true, выдуманные условия на пуле и на подключении дракона.",
+      "Регрессии на рабочем дереве с изменениями: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.97.0, Linux); work/package_stage07_items.py → Dragonfyre-cisco_mod.hmod 6 файлов и Dragonfyre-farmersdelight.hmod 4 файла, без изменений.",
+      "НЕ выполнялось: сборка Dragonfyre-cisco_mod.hmod 0.9.0 (в облачной среде нет cisco_mod_legacy_2.5.jar), check_dragonfyre_survival_pack.rs (нужны крейты Horizon), загрузка пакетов в Horizon, игровой запуск. Хеш пакета 0.9.0 не получен. Код подключения additional_dragon_loot в Iron's Spellbooks не прочитан: страницы исходников закрыты для автоматических запросов (robots_disallowed), обход не применялся."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
       "Игровую приёмку нового Debug и пакета Cisco 0.8.0 проводит пользователь. Stage 10 остаётся PARTIAL.",
-      "Порт истинного дыхания дракона и драконьей кожи не начат (NOT STARTED). В GitHub записаны только количества ингредиентов: нет формы рецепта из Cisco.zs (shaped/shapeless, раскладка) и JSON-правил Iron's Spellbooks additional_dragon_loot с условиями повторного убийства дракона. Для сборки и проверки нужны локальные оригиналы и Windows/Horizon, которых в облачной среде нет. Заменять временный рецепт вслепую нельзя: без предмета драконьей кожи рубин станет некрафтимым."
+      "Условия повторного убийства Эндер-дракона неизвестны: код подключения additional_dragon_loot в Iron's Spellbooks 3.16.2 не прочитан (jar только у владельца). Подключение в пакете сделано без условий, то есть выпадает при каждой смерти дракона. Это предположение, а не подтверждённая механика.",
+      "Пакеты Cisco 0.9.0 и irons_spellbooks не загружались в Horizon: не проверены принятие загрузчиком minecraft:enchanted_count_increase и подключения data/minecraft/... из пакета irons_spellbooks, выпадение предметов и крафт. Если подключение не сработает, оригинальный рецепт рубина недостижим; откат — пакет Cisco 0.8.0 (SHA-256 в stage10)."
     ],
-    "next_action": "На Windows, где лежат оригинальные файлы, только для чтения вывести из scripts/Cisco.zs точный блок рецепта true_dragons_breath (тип и раскладка) и JSON irons_spellbooks:entities/additional_dragon_loot с условиями повторного убийства дракона, записав SHA-256 источников. Затем портировать предмет драконьей кожи, рецепт и лут Эндер-дракона в пакет Cisco, собрать и проверить через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем."
+    "next_action": "На Windows собрать work/build_dragonfyre_survival_pack.py с cisco_mod_legacy_2.5.jar (создаёт Dragonfyre-cisco_mod.hmod 0.9.0 и Dragonfyre-irons_spellbooks.hmod), прогнать check_dragonfyre_survival_pack.rs и python work/check_dragonfyre_dragon_pack.py с готовым hmod, затем проверить загрузку обоих пакетов через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем."
   }
 }
