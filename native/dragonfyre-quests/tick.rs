@@ -29,7 +29,8 @@ fn dragonfyre_tick(
 
     const DETECTION_DELAY_TICKS: u64 = 20;
 
-    static STATE: Mutex<BTreeMap<u128, (u64, BTreeMap<String, u64>, Option<u64>)>> =
+    type DetectionState = (u64, BTreeMap<String, u64>, Option<u64>, String);
+    static STATE: Mutex<BTreeMap<u128, DetectionState>> =
         Mutex::new(BTreeMap::new());
 
     let current_epoch = context.epoch.get();
@@ -65,6 +66,7 @@ fn dragonfyre_tick(
                 current_epoch,
                 current_totals.clone(),
                 Some(current_tick + DETECTION_DELAY_TICKS),
+                guest.dimension.clone(),
             )
         });
 
@@ -73,11 +75,17 @@ fn dragonfyre_tick(
                 current_epoch,
                 current_totals.clone(),
                 Some(current_tick + DETECTION_DELAY_TICKS),
+                guest.dimension.clone(),
             );
         } else if entry.1 != current_totals {
             entry.1 = current_totals.clone();
             let target = current_tick + DETECTION_DELAY_TICKS;
             entry.2 = Some(entry.2.map_or(target, |p| p.min(target)));
+        }
+
+        if entry.3 != guest.dimension {
+            entry.3.clone_from(&guest.dimension);
+            entry.2 = Some(current_tick);
         }
 
         if forced_requery {
@@ -92,7 +100,13 @@ fn dragonfyre_tick(
                 dragonfyre_quests_engine::catalog(),
                 dragonfyre_quests_engine::items(),
             )
-            .and_then(|mut progress| progress.item_detection(current_totals.clone()));
+            .and_then(|mut progress| {
+                progress.item_detection(current_totals.clone())?;
+                if progress.dimension_detection(&guest.dimension)? {
+                    progress.item_detection(current_totals.clone())?;
+                }
+                Ok(())
+            });
 
             match res {
                 Ok(_) => {
