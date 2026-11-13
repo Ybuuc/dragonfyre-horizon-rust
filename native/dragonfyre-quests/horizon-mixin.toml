@@ -182,3 +182,35 @@ bindings = [
   { name = "drops", ty = "&mut Vec<ItemStack>", value = "&mut *drops" },
 ]
 
+[[injection]]
+id = "add_ender_dragon_loot"
+hook = "loot_table_load"
+hook_version = 1
+kind = "HEAD"
+helper = "dragon_loot_hook.rs"
+bindings = [
+  { name = "id", ty = "&str", value = "id" },
+  { name = "table", ty = "&mut Value", value = "&mut *table" },
+]
+
+[[module]]
+id = "dragon_loot"
+file = "crates/horizon-client/src/game/dragon.rs"
+name = "dragonfyre_dragon_loot"
+source = "dragon_loot.rs"
+
+[[injection]]
+id = "drop_dragon_loot_on_death"
+target = "horizon_client::game::dragon::Game<'_>::tick_dragon_death"
+kind = "HEAD"
+helper = "dragon_loot_death.rs"
+bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" }]
+
+[[injection]]
+id = "drop_dragon_loot_on_kill"
+target = "horizon_client::game::dragon::Game<'_>::kill_dragon"
+kind = "HEAD"
+helper = "dragon_loot_kill.rs"
+bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" }]
+
+

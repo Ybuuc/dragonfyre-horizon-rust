@@ -433,7 +433,7 @@
       "manual_gameplay": "assigned to user"
     },
     "true_dragons_breath_source": {
-      "status": "PORT_IMPLEMENTED_NOT_LOADED_IN_HORIZON",
+      "status": "PORT_IMPLEMENTED_AND_VERIFIED_IN_HORIZON",
       "documentation": "docs/STAGE10-DRAGON-SOURCES.md",
       "source_provenance": "REPORTED: supplied by the project owner 2026-11-12; originals exist only on the local Windows PC",
       "crafttweaker_lines": "102-114",
@@ -466,11 +466,82 @@
           "max": 3
         }
       },
-      "ender_dragon_hook": "ASSUMPTION: unconditional, drops on every dragon death; repeat-kill conditions UNKNOWN",
-      "looting_function": "original minecraft:looting_enchant written as minecraft:enchanted_count_increase (Horizon 26.x data format); loader acceptance not verified",
+      "ender_dragon_hook": "Port verified in Horizon 2026-11-13 via native hook loot_table_load v1 (dragon_loot_hook.rs): the pool is appended at load and drops on every dragon death including repeat kills. Original repeat-kill conditions in Iron's Spellbooks 3.16.2 remain unverified (jar not read): the unconditional drop is still an assumption about the original, but a working verified mechanic in the port.",
+      "looting_function": "minecraft:enchanted_count_increase accepted by the Horizon loader; bonus applied in game (Looting III kill gave dragonskin 15 and arcane_essence 46, above base maxima 10/45). Horizon grid nuance: shapeless ingredients must be separate stacks (see stage10.dragon_loot_native_hook.gameplay).",
       "packs": {
-        "cisco_mod": "0.9.0 (not built here: needs cisco_mod_legacy_2.5.jar)",
-        "irons_spellbooks": "0.1.0 (native/dragonfyre-chain-items/irons_spellbooks)"
+        "cisco_mod": "0.9.0 built on Windows: Dragonfyre-cisco_mod.hmod sha256 1187f30ec22ec5769d8f558a7729672ea932801cbcb34c427968b491f11ebac1",
+        "irons_spellbooks": "built: Dragonfyre-irons_spellbooks.hmod sha256 1eb5550303b64d7d1b9f2299939e453314db422dfe2789956f95857443d5a97f"
+      }
+    },
+    "dragon_loot_native_hook": {
+      "status": "VERIFIED_IN_HORIZON_WITH_DIAGNOSTIC_BUILD",
+      "checked_at": "2026-11-13",
+      "horizon_forbids_content_mod_data_minecraft": true,
+      "mechanism": "native hook loot_table_load v1 (dragon_loot_hook.rs) appends the additional_dragon_loot pool to minecraft:entities/ender_dragon at load; dragon_loot.rs drop_loot rolls the table once at the dragon death position",
+      "injections": [
+        "tick_dragon_death at death_time == 0 with player credit (hurt_by_player within 100 ticks; Looting read from the killer's held item via game.inventory[game.selected])",
+        "kill_dragon at death_time == 0 without player credit (/kill has no killer, so no Looting bonus; implemented, no separate in-game check)"
+      ],
+      "mixin_toml_sha256": "e714d8014986574f74d811b05d906f87c6fcec19cc28f539af55cac8892b17a8",
+      "mixin_toml_injections": 15,
+      "mixin_toml_modules": 8,
+      "native_helpers_sha256": {
+        "dragon_loot.rs": "cecf0b5d24183940b7e41dc49baa8ccb0dee0bc877eb0ac5a87ded64859ad369",
+        "dragon_loot_death.rs": "6db552a37bbfcfe79b528ecb0cbc80f8961af8dc64f9eee823b944653bfa842a",
+        "dragon_loot_hook.rs": "0394efb31d33c3550447bb129691a141ae91b44af7d7d6933d54c885f0151fac",
+        "dragon_loot_kill.rs": "85962ecf83b5d2d8f5da7f73eaf3b1e78255f677e14ccd6691121956c73ac5b6"
+      },
+      "apply_run": {
+        "tool": "python scripts/apply-dragonfyre-native.py",
+        "run_dir": "outputs/native-reproduction/dragonfyre-native-0_6jcdcu",
+        "status": "ok",
+        "injections": 15,
+        "modules": 8,
+        "engine_mismatches": 0,
+        "note": "diagnostic %TEMP% logging removed from dragon_loot.rs before this apply; diff vs previous stage is exactly the removed debug block (0 added / 29 removed lines in game/dragon.rs)"
+      },
+      "diagnostic_client_sha256": "e7aab6a944822ba4f303a0d8961544f694dedf1b5530c9721b3e164e83b3a89f",
+      "diagnostic_build_note": "release build with a temporary diagnostic log to %TEMP%\\horizon-dragon-loot-debug.txt; removed from the shipped source before the final clean build",
+      "gameplay": {
+        "profile": "Dragonfyre",
+        "world": "Stage10DragonPack",
+        "audio": "HORIZON_NO_AUDIO=1 (known 0xc0000008 crash)",
+        "packs_loaded_sha256": {
+          "Dragonfyre-cisco_mod.hmod": "1187f30ec22ec5769d8f558a7729672ea932801cbcb34c427968b491f11ebac1",
+          "Dragonfyre-irons_spellbooks.hmod": "1eb5550303b64d7d1b9f2299939e453314db422dfe2789956f95857443d5a97f"
+        },
+        "recipe_verified": {
+          "ingredients": "prepared/given inventory, not natural survival",
+          "event": "-4 irons_spellbooks:dragonskin, -1 minecraft:dragon_breath, -2 minecraft:blaze_powder -> +1 cisco_mod:true_dragons_breath; dragon_breath leaves a glass bottle remainder",
+          "horizon_grid_fidelity_gap": "matches_all matches each shapeless ingredient to a DISTINCT stack (7 ingredients = 7 stacks); vanilla accepts one stack of 2 covering two entries, so two blaze_powder must be placed as two stacks of 1. Engine limitation, recipe rule unchanged."
+        },
+        "first_looting_kill_verified": {
+          "input": "real mouse clicks (tp + look-at + left click), Looting III sword held",
+          "credit": "guest, hurt tick 2869",
+          "killed": true,
+          "drops": {
+            "irons_spellbooks:dragonskin": 15,
+            "irons_spellbooks:arcane_essence": 46
+          },
+          "proof": "counts above base maxima (10 and 45) show the Looting bonus applied; one roll per death",
+          "picked_up": true,
+          "persistence_after_save_quit_relaunch": true
+        },
+        "stale_credit_limitation": "repeated kills can lose the killing-blow credit (client/server invulnerability desync: hurt_server_canceled -> HURT_SERVER -> native_living_incoming_damage; credit gap > 100 ticks -> killed=false and a base roll). 2 of 3 repeat kills rolled base numbers (8/32 and 7/44). Engine limitation, not a loot-rule issue; the kill is retried until the credit is fresh."
+      },
+      "world_backup": {
+        "file": "outputs/native-stage-10-dragon-0.9.0/world-backup-before-looting-test-20261113.zip",
+        "sha256": "52f541a082923056d7c6070c748adb54cdc2228826d543e6bfaa6ea78a5b80e8"
+      },
+      "launcher_gui_blocker": {
+        "status": "BLOCKED",
+        "detail": "the launcher window opens with the Dragonfyre page and Play button, but scripted Win32 clicks do not register (DPI scale 1.25, GPUI window, 0 UIA buttons); CLI horizon-launcher play reproduces: error: Sign in with a Microsoft account that owns Minecraft: Java Edition to play. Test runs launch the installed client via horizon-ctl.",
+        "evidence": [
+          "outputs/native-stage-10-dragon-0.9.0/play20261113-err.txt",
+          "outputs/native-stage-10-dragon-0.9.0/launcher-gui-20261113.png",
+          "outputs/native-stage-10-dragon-0.9.0/launcher-play-click-20261113.png",
+          "outputs/native-stage-10-dragon-0.9.0/launcher-play-result-20261113.png"
+        ]
       }
     }
   },
@@ -480,21 +551,23 @@
     "Windows audio 0xc0000008 unresolved; all tests used muted configuration (HORIZON_NO_AUDIO)",
     "Original Dragonfyre complete content (458+ quests, mods, bosses) not ported/verified",
     "27 local untracked work directories not yet fully classified; do not delete",
-    "Ender Dragon extra-loot hook (dragonskin, arcane essence) is an unconditional assumption: repeat-kill conditions of Iron's Spellbooks 3.16.2 are unknown. Cisco 0.9.0 and irons_spellbooks packs have not been loaded in Horizon yet."
+    "Original repeat-kill conditions of Iron's Spellbooks 3.16.2 remain unverified (jar only with the owner): the port drops the extra dragon loot unconditionally on every death. The mechanic itself is verified working in Horizon 2026-11-13.",
+    "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
+    "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "На Windows собрать work/build_dragonfyre_survival_pack.py с cisco_mod_legacy_2.5.jar (создаёт Dragonfyre-cisco_mod.hmod 0.9.0 и Dragonfyre-irons_spellbooks.hmod), прогнать check_dragonfyre_survival_pack.rs и python work/check_dragonfyre_dragon_pack.py с готовым hmod, затем проверить загрузку обоих пакетов через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем.",
+  "next_task": "Дождаться release-сборки чистого клиента (python scripts/build-dragonfyre-native.py --applied outputs/native-reproduction/dragonfyre-native-0_6jcdcu/applied), установить horizon-client-release.exe в horizon-launcher/versions/dragonfyre и провести финальную приёмку на Stage10DragonPack: Looting-убийство с числами выше базовых максимумов, подбор дропов, сохранение/перезапуск, загрузка обоих пакетов и регистрация предметов, повторная проверка рецепта (две стопки blaze_powder). Затем обновить документы и опубликовать чекпоинт.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-12T04:50:00+05:00",
+    "updated_at": "2026-11-13T07:45:00+05:00",
     "status": "PARTIAL",
-    "active_task": "Перенос оригинального контента Cisco для Stage 10. Игровую приёмку ведёт пользователь.",
+    "active_task": "Stage 10: нативный лут Эндер-дракона (dragonskin/arcane_essence с бонусом Looting) и оригинальный рецепт true_dragons_breath. Проверено в Horizon на диагностическом клиенте; финальная приёмка — на чистой release-сборке (сборка идёт).",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
     ],
     "work_ref": {
       "branch": "main",
-      "commit": "f5d0632f261d6a654683828ad2a2edcc50ed3343"
+      "commit": "813bcf2ec944827a76570ec5cdd6ef9a7e0f61e0"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -514,7 +587,10 @@
       "Амулет скорости плавания добавлен в общий слот «Ожерелье» на K. В исходном пуле сундука башни сохранены вес 1, один предмет за выпадение и 1–2 броска. Экипировка умножает импульс в воде и вертикальные толчки в жидкости на 1,2 по правилам Forge. Состояние слота сохраняется с игроком и передаётся клиенту через синхронизацию атрибутов.",
       "Пояс стойкости из сундука башни надевается в отдельный слот «Пояс» через K и даёт +0,5 к сопротивлению отбрасыванию. Пояс и ожерелье сохраняются одновременно, в исходной таблице сохранены вес 1, один предмет за выпадение и 1–2 броска.",
       "Корона императора из сундука башни надевается через K в отдельный слот «Голова». Исходные +6 к броне суммируются с бронёй шлема, пояс и ожерелье можно носить одновременно. Сохранены эпическая редкость, размер стопки 1, вес 1 в пуле и 1–2 броска.",
-      "Сеанс 2026-11-12: данные Cisco.zs (строки 102–114) и правила additional_dragon_loot записаны с SHA-256 в docs/STAGE10-DRAGON-SOURCES.md (REPORTED, переданы владельцем). Временный рецепт заменён оригинальным бесформенным (4 драконьи кожи, дыхание, 2 огненных порошка), пакет Cisco 0.9.0. Добавлен пакет irons_spellbooks: предметы dragonskin и arcane_essence (внешний вид — заменители, PARTIAL), таблица additional_dragon_loot с двумя независимыми пулами и подключение к minecraft:entities/ender_dragon без условий (предположение). PARTIAL: в Horizon не загружалось."
+      "Сеанс 2026-11-12: данные Cisco.zs (строки 102–114) и правила additional_dragon_loot записаны с SHA-256 в docs/STAGE10-DRAGON-SOURCES.md (REPORTED, переданы владельцем). Временный рецепт заменён оригинальным бесформенным (4 драконьи кожи, дыхание, 2 огненных порошка), пакет Cisco 0.9.0. Добавлен пакет irons_spellbooks: предметы dragonskin и arcane_essence (внешний вид — заменители, PARTIAL), таблица additional_dragon_loot с двумя независимыми пулами и подключение к minecraft:entities/ender_dragon без условий (предположение). PARTIAL: в Horizon не загружалось.",
+      "Сеанс 2026-11-13 (Windows): лут Эндер-дракона подключён нативно — loot_table_load v1 подгружает пул, drop_loot бросает таблицу один раз при смерти (tick_dragon_death при death_time==0 с кредитом игрока; kill_dragon при death_time==0 без кредита для /kill). Диагностический лог убран из dragon_loot.rs; scripts/apply-dragonfyre-native.py → outputs/native-reproduction/dragonfyre-native-0_6jcdcu: ok, 15 инъекций / 8 модулей, 0 расхождений с GitHub-исходниками.",
+      "VERIFIED в Horizon 2026-11-13 (диагностический клиент e7aab6a9…, мир Stage10DragonPack, оба пакета 1187f30e…/1eb55503… загружены): крафт true_dragons_breath на верстаке (−4 кожи, −1 дыхания, −2 порошка → +1, остаток стеклянная бутылка); первая Looting III-убийство дракона реальными кликами: 15 кож и 46 эссенции — выше базовых максимумов 10/45, один бросок на смерть, дропы подняты и пережили save/quit/relaunch.",
+      "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44)."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -537,16 +613,19 @@
       "Состояние до порта (проверка перед получением данных от владельца): рецепт true_dragons_breath в work/build_dragonfyre_survival_pack.py был временным (4 × minecraft:dragon_breath). В отслеживаемых файлах не было предмета irons_spellbooks:dragonskin и записи дополнительного лута Эндер-дракона (git grep). Исходные правила (4 кожи, 1 дыхание, 2 огненных порошка; лут 6–10 плюс 0–2 за добычу) остаются REPORTED: тексты Cisco.zs и jar-ов в GitHub и в облачной среде отсутствуют, поиск в открытых источниках достоверного подтверждения не дал.",
       "После получения данных от владельца: python work/check_dragonfyre_dragon_pack.py → OK, 43 структурные проверки без Horizon (рецепт против блока Cisco.zs из документа, правила лута, состав и локализация пакета irons_spellbooks). Скрипт отклонил 10 заведомо неверных вариантов: 3 кожи, нет дыхания, shaped вместо shapeless, максимум кожи 9, добыча эссенции до 2, обратный порядок функций, add=true, выдуманные условия на пуле и на подключении дракона.",
       "Регрессии на рабочем дереве с изменениями: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.97.0, Linux); work/package_stage07_items.py → Dragonfyre-cisco_mod.hmod 6 файлов и Dragonfyre-farmersdelight.hmod 4 файла, без изменений.",
-      "НЕ выполнялось: сборка Dragonfyre-cisco_mod.hmod 0.9.0 (в облачной среде нет cisco_mod_legacy_2.5.jar), check_dragonfyre_survival_pack.rs (нужны крейты Horizon), загрузка пакетов в Horizon, игровой запуск. Хеш пакета 0.9.0 не получен. Код подключения additional_dragon_loot в Iron's Spellbooks не прочитан: страницы исходников закрыты для автоматических запросов (robots_disallowed), обход не применялся."
+      "НЕ выполнялось: сборка Dragonfyre-cisco_mod.hmod 0.9.0 (в облачной среде нет cisco_mod_legacy_2.5.jar), check_dragonfyre_survival_pack.rs (нужны крейты Horizon), загрузка пакетов в Horizon, игровой запуск. Хеш пакета 0.9.0 не получен. Код подключения additional_dragon_loot в Iron's Spellbooks не прочитан: страницы исходников закрыты для автоматических запросов (robots_disallowed), обход не применялся.",
+      "2026-11-13: work/check_dragonfyre_dragon_pack.py с Dragonfyre-cisco_mod.hmod → 78 проверок OK (exit 0); quest engine cargo test --locked --offline → 34/34; horizon-mixin.toml e714d801… (15 инъекций / 8 модулей); хеши пакетов 1187f30e… (Cisco) и 1eb55503… (Iron's) подтверждены, установленные копии в профиле совпадают.",
+      "2026-11-13: крафт и бросок лута проверены в игре на диагностическом клиенте e7aab6a9… (мир Stage10DragonPack, HORIZON_NO_AUDIO=1); бэкап мира перед тестами 52f541a0…; инвентарь после рестарта восстановлен."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
       "Звук: 0xc0000008 / HORIZON_NO_AUDIO — все тесты без аудио.",
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
-      "Игровую приёмку нового Debug и пакета Cisco 0.8.0 проводит пользователь. Stage 10 остаётся PARTIAL.",
-      "Условия повторного убийства Эндер-дракона неизвестны: код подключения additional_dragon_loot в Iron's Spellbooks 3.16.2 не прочитан (jar только у владельца). Подключение в пакете сделано без условий, то есть выпадает при каждой смерти дракона. Это предположение, а не подтверждённая механика.",
-      "Пакеты Cisco 0.9.0 и irons_spellbooks не загружались в Horizon: не проверены принятие загрузчиком minecraft:enchanted_count_increase и подключения data/minecraft/... из пакета irons_spellbooks, выпадение предметов и крафт. Если подключение не сработает, оригинальный рецепт рубина недостижим; откат — пакет Cisco 0.8.0 (SHA-256 в stage10)."
+      "GUI-запуск через лаунчер: «Играть» требует входа в Microsoft-аккаунт (воспроизведено CLI horizon-launcher play), скриптованные клики по GPUI-окну не регистрируются. Тестовые запуски — установленным клиентом через horizon-ctl.",
+      "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
+      "Условия повторного убийства дракона в оригинале неизвестны: код подключения additional_dragon_loot в Iron's Spellbooks 3.16.2 не прочитан (jar только у владельца). Порт бросает лут без условий — предположение об оригинале при проверенной работоспособности в Horizon.",
+      "Финальную приёмку чистой release-сборки (сборка в процессе) проводит агент на этом ПК; Stage 10 остаётся PARTIAL до её публикации."
     ],
-    "next_action": "На Windows собрать work/build_dragonfyre_survival_pack.py с cisco_mod_legacy_2.5.jar (создаёт Dragonfyre-cisco_mod.hmod 0.9.0 и Dragonfyre-irons_spellbooks.hmod), прогнать check_dragonfyre_survival_pack.rs и python work/check_dragonfyre_dragon_pack.py с готовым hmod, затем проверить загрузку обоих пакетов через Offline Launcher. Ручная приёмка Stage 10 остаётся за пользователем."
+    "next_action": "Дождаться release-сборки чистого клиента (python scripts/build-dragonfyre-native.py --applied outputs/native-reproduction/dragonfyre-native-0_6jcdcu/applied), установить horizon-client-release.exe в horizon-launcher/versions/dragonfyre и провести финальную приёмку на Stage10DragonPack: Looting-убийство с числами выше базовых максимумов (10/45), подбор, сохранение/перезапуск, загрузка обоих пакетов, повторная проверка рецепта (две стопки blaze_powder). Затем обновить CURRENT_STATUS.md / docs/STAGE10-DRAGON-SOURCES.md / этот handoff и опубликовать."
   }
 }

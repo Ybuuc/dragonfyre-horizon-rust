@@ -10,6 +10,7 @@ import json
 import re
 import sys
 import tempfile
+import tomllib
 from collections import Counter
 from pathlib import Path
 from zipfile import ZipFile
@@ -30,10 +31,14 @@ EXPECTED_FILES = {
     'data/irons_spellbooks/horizon/item/dragonskin.json',
     'data/irons_spellbooks/horizon/item/arcane_essence.json',
     'data/irons_spellbooks/loot_table/entities/additional_dragon_loot.json',
-    'data/minecraft/loot_table/entities/ender_dragon.json',
     'assets/irons_spellbooks/lang/en_us.json',
     'assets/irons_spellbooks/lang/ru_ru.json',
 }
+MIXIN = ROOT/'native/dragonfyre-quests/horizon-mixin.toml'
+HOOK_SOURCE = ROOT/'native/dragonfyre-quests/dragon_loot_hook.rs'
+LOOT_MODULE = ROOT/'native/dragonfyre-quests/dragon_loot.rs'
+LOOT_DEATH = ROOT/'native/dragonfyre-quests/dragon_loot_death.rs'
+LOOT_KILL = ROOT/'native/dragonfyre-quests/dragon_loot_kill.rs'
 checks = 0
 
 
@@ -80,24 +85,90 @@ def check_loot(table):
         check(pool['rolls'] == 1 and pool['bonus_rolls'] == 0.0, f'{item}: rolls/bonus_rolls')
         (entry,) = pool['entries']
         check(entry['type'] == 'minecraft:item' and entry['name'] == item, f'{item}: entry')
-        check(set(entry) == {'type', 'name', 'functions'}, f'{item}: invented entry fields')
-        count, looting = entry['functions']
-        check(count['function'] == 'minecraft:set_count' and count['add'] is False,
+        # Horizon 26.3 stores entry functions under `modifier` with a `type`; the 1.20.1
+        # `functions`/`function` keys load but never run, which silently yields one item.
+        check(set(entry) == {'type', 'name', 'modifier'}, f'{item}: invented entry fields')
+        check('functions' not in entry and 'function' not in entry,
+              f'{item}: legacy 1.20.1 function keys must be converted')
+        count, looting = entry['modifier']
+        check(count['type'] == 'minecraft:set_count' and count['add'] is False,
               f'{item}: set_count must come first with add=false')
         check(uniform(count['count'], base_min, base_max), f'{item}: base count')
-        check(looting['function'] == 'minecraft:enchanted_count_increase'
+        check(looting['type'] == 'minecraft:enchanted_count_increase'
               and looting['enchantment'] == 'minecraft:looting', f'{item}: looting function')
         check(uniform(looting['count'], loot_min, loot_max), f'{item}: looting count')
         check('conditions' not in count and 'conditions' not in looting,
               f'{item}: conditions are not part of the owner-supplied rules')
 
 
-def check_hook(hook):
-    (pool,) = hook['pools']
-    (entry,) = pool['entries']
-    check(entry == {'type': 'minecraft:loot_table', 'value': TABLE}, 'dragon hook target')
-    check('conditions' not in pool and 'conditions' not in entry,
-          'repeat-kill conditions are unknown and must not be invented')
+def check_native_hook():
+    # The original is a Forge global loot modifier appended on every death. Horizon refuses
+    # mod files under data/minecraft/, so the table is attached at load time through the
+    # supported native hook instead. The vanilla table keeps its random_sequence; a mob table
+    # without one drops nothing. No first-kill condition exists in the original.
+    with MIXIN.open('rb') as stream:
+        manifest = tomllib.load(stream)
+    hooks = [entry for entry in manifest.get('injection', [])
+             if entry.get('hook') == 'loot_table_load']
+    check(len(hooks) == 1, 'expected exactly one loot_table_load injection')
+    hook = hooks[0]
+    check(hook.get('hook_version') == 1, 'loot_table_load must use hook version 1')
+    check(hook.get('kind') == 'HEAD', 'loot_table_load injection must be HEAD')
+    check(hook.get('helper') == 'dragon_loot_hook.rs', 'loot hook helper name')
+    check(hook.get('bindings') == [
+        {'name': 'id', 'ty': '&str', 'value': 'id'},
+        {'name': 'table', 'ty': '&mut Value', 'value': '&mut *table'},
+    ], 'loot hook bindings must match native_loot_table_load')
+    source = HOOK_SOURCE.read_text(encoding='utf-8')
+    check('minecraft:entities/ender_dragon' in source, 'hook must target the Ender Dragon table')
+    check(TABLE in source, 'hook must reference the original additional loot table')
+    check('"pools"' in source and '"entries"' in source and '"minecraft:loot_table"' in source,
+          'hook must append a nested loot_table pool')
+
+
+def check_dragon_drop():
+    # Horizon's dragon death only spawns experience; the vanilla table is never rolled, so the
+    # Forge global loot modifier has nothing to append to. The two injections roll the same
+    # table at the dragon's death: the death flight for a player kill (with Looting from the
+    # held item) and `/kill`, which removes a live dragon without the death flight.
+    with MIXIN.open('rb') as stream:
+        manifest = tomllib.load(stream)
+    modules = {entry.get('id'): entry for entry in manifest.get('module', [])}
+    check('dragon_loot' in modules, 'dragon loot module is missing from the mixin manifest')
+    module = modules['dragon_loot']
+    check(module.get('file') == 'crates/horizon-client/src/game/dragon.rs',
+          'dragon loot module must be injected into the dragon source')
+    check(module.get('name') == 'dragonfyre_dragon_loot', 'dragon loot module name')
+    check(module.get('source') == 'dragon_loot.rs', 'dragon loot module source')
+
+    injections = {entry.get('id'): entry for entry in manifest.get('injection', [])}
+    expected = (
+        ('drop_dragon_loot_on_death', 'tick_dragon_death', 'dragon_loot_death.rs', 'true'),
+        ('drop_dragon_loot_on_kill', 'kill_dragon', 'dragon_loot_kill.rs', 'false'),
+    )
+    for injection_id, function, helper, credit in expected:
+        check(injection_id in injections, f'{injection_id}: injection is missing')
+        injection = injections[injection_id]
+        check(injection.get('target')
+              == f"horizon_client::game::dragon::Game<'_>::{function}",
+              f'{injection_id}: target must be the dragon {function}')
+        check(injection.get('kind') == 'HEAD', f'{injection_id}: only a HEAD injection runs once')
+        check(injection.get('helper') == helper, f'{injection_id}: helper name')
+        check(injection.get('bindings') == [
+            {'name': 'game', 'ty': '&mut crate::game::Game<\'_>', 'value': '&mut *self'},
+        ], f'{injection_id}: bindings must pass the game')
+        helper_source = (ROOT/'native/dragonfyre-quests'/helper).read_text(encoding='utf-8')
+        check('death_time == 0' in helper_source, f'{injection_id}: must roll only once')
+        check(f'drop_loot(game, {credit})' in helper_source,
+              f'{injection_id}: player credit must be {credit}')
+
+    source = LOOT_MODULE.read_text(encoding='utf-8')
+    check('minecraft:entities/ender_dragon' in source, 'drop must roll the vanilla dragon table')
+    check('killed_by_player' in source and 'held.as_ref()' in source,
+          'drop must pass the player kill and held item to the loot context')
+    check('spawn_item' in source, 'drop must spawn the rolled stacks in the level')
+    check('death_time' not in source, 'the module must not own the once-per-death guard')
+    check(LOOT_DEATH.is_file() and LOOT_KILL.is_file(), 'dragon drop helpers are missing')
 
 
 def check_irons_pack(path):
@@ -120,8 +191,9 @@ def check_irons_pack(path):
             check(data['components']['minecraft:item_model'] == data['template'], f'{item} model')
             check(all(key in lang for lang in langs.values()), f'{item} missing translation')
         check(items == {rule[0] for rule in RULES}, f'items {items}')
+        check(not any(name.startswith('data/minecraft/') for name in archive.namelist()),
+              'a mod may not add files under data/minecraft/')
         check_loot(json.loads(read('data/irons_spellbooks/loot_table/entities/additional_dragon_loot.json')))
-        check_hook(json.loads(read('data/minecraft/loot_table/entities/ender_dragon.json')))
     return items
 
 
@@ -147,6 +219,8 @@ def main():
         items = check_irons_pack(irons)
     check({i for i in recipe['ingredients'] if i.startswith('irons_spellbooks:')} <= items,
           'recipe ingredient missing from irons pack')
+    check_native_hook()
+    check_dragon_drop()
     if len(sys.argv) > 1:
         check_cisco_pack(Path(sys.argv[1]), items)
     print(f'OK: {checks} checks passed' + ('' if len(sys.argv) > 1 else
