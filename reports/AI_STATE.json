@@ -596,7 +596,18 @@
           "dragonskin": 6,
           "arcane_essence": 29
         },
-        "looting_bonus": "inconclusive_on_clean_release"
+        "looting_bonus": "inconclusive_on_clean_release",
+        "qa_script_smoke": {
+          "status": "passed",
+          "checked_at": "2026-11-13T21:44:58+05:00",
+          "checks_passed": 78,
+          "preflight_seconds": 0.67,
+          "client_seconds": 62.91,
+          "resource_seconds": 46.5,
+          "frames": 156,
+          "chunks": 117,
+          "exit_code": 0
+        }
       }
     }
   },
@@ -613,7 +624,7 @@
   "next_task": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T21:38:15+05:00",
+    "updated_at": "2026-11-13T21:44:58+05:00",
     "status": "PARTIAL",
     "active_task": "Stage 10: крафт, подбор и сохранение проверены на чистой release-сборке; требуется отдельное подтверждение бонуса Looting III.",
     "related_issues": [
@@ -675,7 +686,8 @@
       "Get-FileHash: чистая release-сборка и установленный клиент → 3c6f5cb243635fb2aaeb2164ea11d217f0bec6eb99bb3a1adea5d3ca6a667303. Хеши двух установленных hmod совпали. Проверка пакета Cisco и хуков → 78/78. Журнал чистого клиента с тестовой копией и включёнными модами: content from 3 mod(s).",
       "Чистый release-клиент с `--quickPlaySingleplayer Stage10DragonPack --world-frames 120` вошёл в тестовую копию мира с тремя модами и завершился с кодом 0. `smoke.json`: `error: null`, 168 кадров, 117 чанков, 1683 зарегистрированных предмета по журналу загрузки. Звук выключен. Отдельная регистрация предметов пакетов, крафт, Looting III, подбор и проверка инвентаря после перезапуска остаются на приёмке.",
       "На чистом release-клиенте в творческой копии Stage10DragonPack проверены крафт True Dragon’s Breath с двумя отдельными стопками blaze_powder, остаток стеклянной бутылки и выдача Arcane Essence. Пользователь подтвердил сохранение инвентаря после полного перезапуска; чтение файла игрока подтвердило 1 True Dragon’s Breath, 6 Dragonskin и 29 Arcane Essence. При исходных 0 кожи и 1 эссенции прирост составил 6/28. Бонус Looting III на чистой сборке по этому выпадению не определён.",
-      "scripts/qa-stage10.py: быстрый прогон прошёл 78/78; сверены SHA-256 клиента и пакетов, успешно прочитан инвентарь из сохранения."
+      "scripts/qa-stage10.py: быстрый прогон прошёл 78/78; сверены SHA-256 клиента и пакетов, успешно прочитан инвентарь из сохранения.",
+      "Повторный `scripts/qa-stage10.py --mode smoke` после освобождения тестового мира прошёл с кодом 0. Проверка пакета 78/78 и сверка SHA-256 заняли 0,67 с, клиент — 62,91 с, включая 46,5 с на загрузку ресурсов. Отчёт: 156 кадров, 117 чанков, `error: null`. Сборка клиента не запускалась."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
