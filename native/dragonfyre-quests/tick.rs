@@ -113,10 +113,10 @@ fn dragonfyre_tick(
                     entry.2 = None;
                 }
                 Err(err) => {
-                    eprintln!(
+                    let _ = std::io::Write::write_fmt(&mut std::io::stderr(), format_args!(
                         "dragonfyre quest item detection error for {:032x}: {err:?}",
                         guest.uuid
-                    );
+                    ));
                     // Keep entry.2 as Some(due) so it retries next tick
                 }
             }
