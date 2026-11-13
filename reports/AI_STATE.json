@@ -621,10 +621,10 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Собрать отдельный тестовый клиент Horizon из port/nether-quartz-quests с переиспользованием Cargo target, затем передать владельцу сценарий Обсидиан → Нижний мир → Кварц.",
+  "next_task": "Собрать клиент из port/nether-quartz-quests с переиспользованием Cargo target, затем после резервной копии обновить существующий профиль Dragonfyre. Передать владельцу сценарий Обсидиан → Нижний мир → Кварц для запуска через Horizon Offline Launcher → Dragonfyre → Играть.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T21:53:15+05:00",
+    "updated_at": "2026-11-13T22:03:15+05:00",
     "status": "PARTIAL",
     "active_task": "FTB Quests: ветка Обсидиан → Нижний мир → Кварц",
     "related_issues": [
@@ -700,11 +700,13 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Собрать отдельный тестовый клиент Horizon из port/nether-quartz-quests с переиспользованием Cargo target, затем передать владельцу сценарий Обсидиан → Нижний мир → Кварц.",
+    "next_action": "Собрать клиент из port/nether-quartz-quests с переиспользованием Cargo target, затем после резервной копии обновить существующий профиль Dragonfyre. Передать владельцу сценарий Обсидиан → Нижний мир → Кварц для запуска через Horizon Offline Launcher → Dragonfyre → Играть.",
     "manual_acceptance": {
       "owner": "Пользователь",
       "stage10_status": "PARTIAL",
-      "next_action": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости."
+      "next_action": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости.",
+      "launch": "Horizon Offline Launcher → Dragonfyre → Играть",
+      "profile": "Dragonfyre"
     }
   }
 }
