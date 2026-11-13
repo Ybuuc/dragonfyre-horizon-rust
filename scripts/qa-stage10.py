@@ -113,6 +113,8 @@ def run(args):
         data["world_smoke"] = json.loads(smoke.read_text(encoding="utf-8"))
     (output / "report.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     if result.returncode != 0:
+        if "is already open in another instance" in (output / "client.log").read_text(encoding="utf-8", errors="replace"):
+            raise ValueError(f"Close the Horizon window using this QA world, then retry. See {output}")
         raise ValueError(f"Client exited with {result.returncode}. See {output}")
     if args.mode == "smoke":
         result = data.get("world_smoke", {})
