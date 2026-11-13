@@ -621,12 +621,12 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости.",
+  "next_task": "Расширить нативный каталог FTB Quests на первую группу связанных заданий с типом item, сохранив исходные ID, условия, зависимости и награды. Начать с заданий, предметы которых уже зарегистрированы в Horizon. Прогнать тесты квестового движка и проверить, что старые сохранения по-прежнему открываются.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T21:44:58+05:00",
+    "updated_at": "2026-11-13T21:48:22+05:00",
     "status": "PARTIAL",
-    "active_task": "Stage 10: крафт, подбор и сохранение проверены на чистой release-сборке; требуется отдельное подтверждение бонуса Looting III.",
+    "active_task": "Перенос основных глав FTB Quests в Rust/Horizon",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
@@ -657,7 +657,8 @@
       "Сеанс 2026-11-13 (Windows): лут Эндер-дракона подключён нативно — loot_table_load v1 подгружает пул, drop_loot бросает таблицу один раз при смерти (tick_dragon_death при death_time==0 с кредитом игрока; kill_dragon при death_time==0 без кредита для /kill). Диагностический лог убран из dragon_loot.rs; scripts/apply-dragonfyre-native.py → outputs/native-reproduction/dragonfyre-native-0_6jcdcu: ok, 15 инъекций / 8 модулей, 0 расхождений с GitHub-исходниками.",
       "VERIFIED в Horizon 2026-11-13 (диагностический клиент e7aab6a9…, мир Stage10DragonPack, оба пакета 1187f30e…/1eb55503… загружены): крафт true_dragons_breath на верстаке (−4 кожи, −1 дыхания, −2 порошка → +1, остаток стеклянная бутылка); первая Looting III-убийство дракона реальными кликами: 15 кож и 46 эссенции — выше базовых максимумов 10/45, один бросок на смерть, дропы подняты и пережили save/quit/relaunch.",
       "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44).",
-      "Чистый release-клиент собран (код выхода 0) и установлен в профиль Dragonfyre; SHA-256 установленного файла совпал с отчётом сборки."
+      "Чистый release-клиент собран (код выхода 0) и установлен в профиль Dragonfyre; SHA-256 установленного файла совпал с отчётом сборки.",
+      "По исходным SNBT проверены 21 глава и 461 уникальный квест. Найдены 368 задач типа item, 96 kill и 7 других типов. У 225 квестов есть зависимости, все указанные ID разрешаются. Команда: python work/audit_ftb_quests.py <папка chapters>. Это инвентаризация исходников для переноса."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -697,6 +698,11 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости."
+    "next_action": "Расширить нативный каталог FTB Quests на первую группу связанных заданий с типом item, сохранив исходные ID, условия, зависимости и награды. Начать с заданий, предметы которых уже зарегистрированы в Horizon. Прогнать тесты квестового движка и проверить, что старые сохранения по-прежнему открываются.",
+    "manual_acceptance": {
+      "owner": "Пользователь",
+      "stage10_status": "PARTIAL",
+      "next_action": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости."
+    }
   }
 }
