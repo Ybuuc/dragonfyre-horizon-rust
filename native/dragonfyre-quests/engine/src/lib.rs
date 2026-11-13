@@ -301,6 +301,18 @@ impl Progress {
         ))
     }
 
+    pub fn dimension_detection(&mut self, dimension: &str) -> Result<bool, Error> {
+        const QUEST: Id = 0x7D59BD1308E6778F;
+        const TASK: Id = 0x5A32602FB439DCA0;
+        if dimension != "minecraft:the_nether" || !self.quests.contains_key(&QUEST) {
+            return Ok(false);
+        }
+        match self.checkmark(QUEST, TASK) {
+            Err(Error::Locked) => Ok(false),
+            result => result,
+        }
+    }
+
     pub fn item_detection(
         &mut self,
         stacks: impl IntoIterator<Item = (String, u64)>,
@@ -906,6 +918,34 @@ mod tests {
         assert!(matches!(res, Err(Error::Io(_))));
         assert!(!p.complete(100));
         assert!(!p.completed_tasks.contains(&(100, 101)));
+    }
+
+    #[test]
+    fn nether_chain_respects_dependencies_and_reopens() {
+        let world = World::new();
+        let quartz = 0x3E13EB56EE51145F;
+        let nether = 0x7D59BD1308E6778F;
+        let mut progress = Progress::open(&world.0, 1, catalog(), items()).unwrap();
+        assert!(!progress.dimension_detection("minecraft:the_nether").unwrap());
+        assert!(progress.item_detection([("minecraft:quartz".into(), 1)]).unwrap().is_empty());
+        progress.item_detection([("minecraft:obsidian".into(), 1)]).unwrap();
+        drop(progress);
+        let mut progress = Progress::open(&world.0, 1, catalog(), items()).unwrap();
+        assert!(!progress.dimension_detection("minecraft:overworld").unwrap());
+        assert!(progress.dimension_detection("minecraft:the_nether").unwrap());
+        assert!(!progress.dimension_detection("minecraft:the_nether").unwrap());
+        assert_eq!(progress.item_detection([("minecraft:quartz".into(), 1)]).unwrap(),
+            vec![(quartz, 0x241A7E9F197E4D1D)]);
+        drop(progress);
+        let reopened = Progress::open(&world.0, 1, catalog(), items()).unwrap();
+        assert!(reopened.complete(nether));
+        assert!(reopened.complete(quartz));
+        let rewards = economy::definitions();
+        let nether_reward = rewards.iter().find(|d| d.quest == nether).unwrap();
+        assert_eq!(nether_reward.items, vec![("minecraft:blaze_rod".into(), 2)]);
+        assert_eq!(nether_reward.levels, 10);
+        assert_eq!(rewards.iter().find(|d| d.quest == quartz).unwrap().items,
+            vec![("cisco_mod:champion_coin".into(), 1)]);
     }
 
     #[test]
