@@ -577,7 +577,7 @@
         "installed_sha256_matches": true,
         "pack_checks_passed": 78,
         "enabled_mod_content_count": 3,
-        "gameplay": "pending",
+        "gameplay": "partial",
         "blocker": "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id.",
         "world_smoke": {
           "status": "passed",
@@ -588,7 +588,15 @@
           "chunks": 117,
           "registered_item_count": 1683,
           "audio": false
-        }
+        },
+        "crafting": "passed_prepared_creative_inventory",
+        "pickup": "confirmed",
+        "restart_inventory": {
+          "true_dragons_breath": 1,
+          "dragonskin": 6,
+          "arcane_essence": 29
+        },
+        "looting_bonus": "inconclusive_on_clean_release"
       }
     }
   },
@@ -602,12 +610,12 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "На установленном чистом release-клиенте открыть тестовую копию Stage10DragonPack с пакетами Cisco 0.9.0 и Iron's Spellbooks. Проверить регистрацию предметов и крафт с двумя отдельными стопками blaze_powder, затем убить дракона с Looting III, измерить дроп (базовые максимумы 10/45), подобрать его, сохранить мир и сверить инвентарь после перезапуска. При недоступном horizon-ctl выполнить игровой сценарий вручную. Обычный запуск через «Играть» и натуральный survival E2E остаются отдельными проверками.",
+  "next_task": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T21:06:12+05:00",
+    "updated_at": "2026-11-13T21:38:15+05:00",
     "status": "PARTIAL",
-    "active_task": "Stage 10: вход в Stage10DragonPack на чистом release-клиенте подтверждён; остаётся игровой прогон рецепта и лута.",
+    "active_task": "Stage 10: крафт, подбор и сохранение проверены на чистой release-сборке; требуется отдельное подтверждение бонуса Looting III.",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
@@ -665,7 +673,9 @@
       "2026-11-13: work/check_dragonfyre_dragon_pack.py с Dragonfyre-cisco_mod.hmod → 78 проверок OK (exit 0); quest engine cargo test --locked --offline → 34/34; horizon-mixin.toml e714d801… (15 инъекций / 8 модулей); хеши пакетов 1187f30e… (Cisco) и 1eb55503… (Iron's) подтверждены, установленные копии в профиле совпадают.",
       "2026-11-13: крафт и бросок лута проверены в игре на диагностическом клиенте e7aab6a9… (мир Stage10DragonPack, HORIZON_NO_AUDIO=1); бэкап мира перед тестами 52f541a0…; инвентарь после рестарта восстановлен.",
       "Get-FileHash: чистая release-сборка и установленный клиент → 3c6f5cb243635fb2aaeb2164ea11d217f0bec6eb99bb3a1adea5d3ca6a667303. Хеши двух установленных hmod совпали. Проверка пакета Cisco и хуков → 78/78. Журнал чистого клиента с тестовой копией и включёнными модами: content from 3 mod(s).",
-      "Чистый release-клиент с `--quickPlaySingleplayer Stage10DragonPack --world-frames 120` вошёл в тестовую копию мира с тремя модами и завершился с кодом 0. `smoke.json`: `error: null`, 168 кадров, 117 чанков, 1683 зарегистрированных предмета по журналу загрузки. Звук выключен. Отдельная регистрация предметов пакетов, крафт, Looting III, подбор и проверка инвентаря после перезапуска остаются на приёмке."
+      "Чистый release-клиент с `--quickPlaySingleplayer Stage10DragonPack --world-frames 120` вошёл в тестовую копию мира с тремя модами и завершился с кодом 0. `smoke.json`: `error: null`, 168 кадров, 117 чанков, 1683 зарегистрированных предмета по журналу загрузки. Звук выключен. Отдельная регистрация предметов пакетов, крафт, Looting III, подбор и проверка инвентаря после перезапуска остаются на приёмке.",
+      "На чистом release-клиенте в творческой копии Stage10DragonPack проверены крафт True Dragon’s Breath с двумя отдельными стопками blaze_powder, остаток стеклянной бутылки и выдача Arcane Essence. Пользователь подтвердил сохранение инвентаря после полного перезапуска; чтение файла игрока подтвердило 1 True Dragon’s Breath, 6 Dragonskin и 29 Arcane Essence. При исходных 0 кожи и 1 эссенции прирост составил 6/28. Бонус Looting III на чистой сборке по этому выпадению не определён.",
+      "scripts/qa-stage10.py: быстрый прогон прошёл 78/78; сверены SHA-256 клиента и пакетов, успешно прочитан инвентарь из сохранения."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
@@ -675,6 +685,6 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "На установленном чистом release-клиенте открыть тестовую копию Stage10DragonPack с пакетами Cisco 0.9.0 и Iron's Spellbooks. Проверить регистрацию предметов и крафт с двумя отдельными стопками blaze_powder, затем убить дракона с Looting III, измерить дроп (базовые максимумы 10/45), подобрать его, сохранить мир и сверить инвентарь после перезапуска. При недоступном horizon-ctl выполнить игровой сценарий вручную. Обычный запуск через «Играть» и натуральный survival E2E остаются отдельными проверками."
+    "next_action": "Проверить бонус Looting III на чистой release-сборке: замерить исходный инвентарь через scripts/qa-stage10.py --player UUID, добить дракона мечом с Looting III и сверить прирост после подбора. Достаточно превысить базовый максимум 10 кож или 45 эссенции для соответствующего предмета. Проверять изменения пакетов сначала в режиме check, запускать Horizon в режиме smoke или play только при необходимости."
   }
 }
