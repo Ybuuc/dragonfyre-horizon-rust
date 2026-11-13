@@ -341,12 +341,12 @@ fn failpoint(name: &str, kind: u8) {
         return;
     }
     if std::env::var("HORIZON_DFQ_CRASH").as_deref() == Ok(name) {
-        eprintln!("DFQ injected process exit: {name}");
+        let _ = std::io::Write::write_fmt(&mut std::io::stderr(), format_args!("DFQ injected process exit: {name}"));
         std::process::exit(86);
     }
 }
 fn fatal(e: impl std::fmt::Display) -> ! {
-    eprintln!("DFQ transaction cannot safely continue; restart required: {e}");
+    let _ = std::io::Write::write_fmt(&mut std::io::stderr(), format_args!("DFQ transaction cannot safely continue; restart required: {e}"));
     std::process::exit(87);
 }
 /// Runs during login, before the next tick can process client inventory actions.
@@ -566,10 +566,10 @@ fn execute(game: &mut Game<'_>, actor: u128, q: u64, kind: u8, slot: u64) -> Res
     failpoint("after_player_save", kind);
     store.acknowledge(r).unwrap_or_else(|e| fatal(e));
     failpoint("after_ack", kind);
-    eprintln!(
+    let _ = std::io::Write::write_fmt(&mut std::io::stderr(), format_args!(
         "DFQ transaction committed: {actor:032x} {q:016X} kind={kind} sequence={}",
         r.sequence
-    );
+    ));
     Ok(())
 }
 pub fn tick(game: &mut Game<'_>) {
@@ -586,7 +586,7 @@ pub fn tick(game: &mut Game<'_>) {
     for Request { actor, quest, kind, slot, reply, .. } in requests {
         let result = execute(game, actor, quest, kind, slot);
         if let Err(e) = &result {
-            eprintln!("DFQ transaction rejected: {actor:032x} {quest:016X}: {e}");
+            let _ = std::io::Write::write_fmt(&mut std::io::stderr(), format_args!("DFQ transaction rejected: {actor:032x} {quest:016X}: {e}"));
         }
         if let Some(reply) = reply {
             let _ = reply.send(result);
