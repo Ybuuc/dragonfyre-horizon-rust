@@ -621,10 +621,10 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Собрать и установить исправление в существующий профиль Dragonfyre. Проверить claim на новой тестовой цепочке, движение сразу после выдачи и отсутствие повторной награды после перезапуска.",
+  "next_task": "Установить готовый release с исправлением через Install-Dragonfyre-Quest-Update.ps1 и проверить повторный claim через Horizon Offline Launcher → Dragonfyre → Играть. Ожидаются сохранение управления и отсутствие дубля награды.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T23:32:48+05:00",
+    "updated_at": "2026-11-14T00:22:50.0448787+05:00",
     "status": "PARTIAL",
     "active_task": "FTB Quests: ветка Обсидиан → Нижний мир → Кварц",
     "related_issues": [
@@ -693,7 +693,8 @@
       "scripts/qa-stage10.py: быстрый прогон прошёл 78/78; сверены SHA-256 клиента и пакетов, успешно прочитан инвентарь из сохранения.",
       "Повторный `scripts/qa-stage10.py --mode smoke` после освобождения тестового мира прошёл с кодом 0. Проверка пакета 78/78 и сверка SHA-256 заняли 0,67 с, клиент — 62,91 с, включая 46,5 с на загрузку ресурсов. Отчёт: 156 кадров, 117 чанков, `error: null`. Сборка клиента не запускалась.",
       "Изолированный cargo test --locked --offline: 35/35, включая блокировку кварца до входа в Нижний мир и повторное открытие журнала прогресса.",
-      "На установленном release-клиенте через Horizon Offline Launcher сохранены три события цепочки и подтверждения обеих транзакций наград. Пользователь подтвердил отсутствие повторной выдачи. При claim сервер дважды паниковал при выводе в закрытый stderr (Windows 232)."
+      "На установленном release-клиенте через Horizon Offline Launcher сохранены три события цепочки и подтверждения обеих транзакций наград. Пользователь подтвердил отсутствие повторной выдачи. При claim сервер дважды паниковал при выводе в закрытый stderr (Windows 232).",
+      "Release с исправлением stderr собран (код 0), --help прошёл, SHA-256 C96FE569B6EFA6BA53FDC79A34B6E559D288A038AB912AC85FA440361844180D совпал с локальным install-receipt.json."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
@@ -703,7 +704,7 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Собрать и установить исправление в существующий профиль Dragonfyre. Проверить claim на новой тестовой цепочке, движение сразу после выдачи и отсутствие повторной награды после перезапуска.",
+    "next_action": "Установить готовый release с исправлением через Install-Dragonfyre-Quest-Update.ps1 и проверить повторный claim через Horizon Offline Launcher → Dragonfyre → Играть. Ожидаются сохранение управления и отсутствие дубля награды.",
     "manual_acceptance": {
       "owner": "Пользователь",
       "stage10_status": "PARTIAL",
