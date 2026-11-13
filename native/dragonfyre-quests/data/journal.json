@@ -24,7 +24,15 @@
     "changed": "Quest state changed. Check the journal and try again.",
     "storage": "Quest progress could not be read or saved.",
     "unavailable": "Your profile is unavailable. Reopen the journal.",
-    "local_only": "The quest journal is available in a local world."
+    "local_only": "The quest journal is available in a local world.",
+    "obsidian": "Acquire Obsidian",
+    "nether": "The Depths of Hell",
+    "quartz": "Acquire Quartz",
+    "reward_obsidian": "Flint and Steel and 5 levels",
+    "reward_nether": "2 Blaze Rods and 10 levels",
+    "reward_quartz": "1 Champion Coin",
+    "locked": "Complete the prerequisite quest",
+    "enter_nether": "Enter the Nether"
   },
   "ru": {
     "title": "Журнал квестов Dragonfyre",
@@ -51,6 +59,14 @@
     "changed": "Прогресс изменился. Проверь журнал и попробуй снова.",
     "storage": "Не удалось прочитать или сохранить прогресс.",
     "unavailable": "Профиль недоступен. Открой журнал ещё раз.",
-    "local_only": "Журнал квестов доступен в локальном мире."
+    "local_only": "Журнал квестов доступен в локальном мире.",
+    "obsidian": "Добыть обсидиан",
+    "nether": "Посетить Нижний мир",
+    "quartz": "Добыть кварц",
+    "reward_obsidian": "Огниво и 5 уровней",
+    "reward_nether": "2 огненных стержня и 10 уровней",
+    "reward_quartz": "1 монета чемпиона",
+    "locked": "Сначала выполни предыдущий квест",
+    "enter_nether": "Войди в Нижний мир"
   }
 }
