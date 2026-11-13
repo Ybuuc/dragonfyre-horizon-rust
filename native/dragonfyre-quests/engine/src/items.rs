@@ -1,6 +1,7 @@
 // Generated from the verified local Dragonfyre archive; item specifications only.
 {
 vec![
+ItemSpec { quest: 0x3E13EB56EE51145F, task: 0x241A7E9F197E4D1D, item: "minecraft:quartz".to_string(), count: 1 },
 ItemSpec { quest: 0x6DD05439A53758C5, task: 0x3DE59125265A1C51, item: "alexscaves:amber_monolith".to_string(), count: 1 },
 ItemSpec { quest: 0x2FAED2E6F7B65282, task: 0x6F437DB1935B20F9, item: "alexscaves:amber_curiosity".to_string(), count: 1 },
 ItemSpec { quest: 0x7F752FC1838B0EFF, task: 0x2B2CB6F1844DF4B5, item: "alexscaves:galena_gauntlet".to_string(), count: 1 },
