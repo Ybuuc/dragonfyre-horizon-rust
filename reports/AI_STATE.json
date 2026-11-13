@@ -93,7 +93,11 @@
       "mode": "survival",
       "allow_commands": false,
       "world_seed": 9001,
-      "core_chest_position": [-503, 103, 114],
+      "core_chest_position": [
+        -503,
+        103,
+        114
+      ],
       "core_obtained_naturally": true,
       "other_ingredients_prepared": true,
       "ruby_crafted": true,
@@ -129,9 +133,17 @@
       "world_seed": 9001,
       "normal_terrain_and_structures": true,
       "initial_inventory_empty": true,
-      "starter_items_crafted": ["spruce_planks", "stick", "crafting_table"],
+      "starter_items_crafted": [
+        "spruce_planks",
+        "stick",
+        "crafting_table"
+      ],
       "generated_tower_reached": true,
-      "natural_core_chest_position": [-503, 103, 114],
+      "natural_core_chest_position": [
+        -503,
+        103,
+        114
+      ],
       "first_tower_entry": "player killed by a witch",
       "divine_core_obtained": false,
       "all_recipe_ingredients_obtained": false,
@@ -152,7 +164,11 @@
         "commands_enabled": false,
         "natural_progress": {
           "spruce_logs": 4,
-          "crafting_table_position": [78, 71, 193],
+          "crafting_table_position": [
+            78,
+            71,
+            193
+          ],
           "wooden_pickaxe": true,
           "wooden_sword": true,
           "cobblestone": 17,
@@ -161,9 +177,17 @@
           "stone_pickaxe": true,
           "stone_sword": true,
           "torches": 8,
-          "sealed_shelter": [80, 68, 192],
+          "sealed_shelter": [
+            80,
+            68,
+            192
+          ],
           "survived_night_in_shelter": true,
-          "furthest_west_position": [-338.5, 63.0, 173.5]
+          "furthest_west_position": [
+            -338.5,
+            63,
+            173.5
+          ]
         },
         "deaths": [
           "polar bear family near (-330, 63, 164) during the western overland route",
@@ -206,7 +230,11 @@
           "minecraft:rabbit_hide": 1
         },
         "position_unchanged": true,
-        "previously_crafted_workbench_persisted": [78, 71, 193],
+        "previously_crafted_workbench_persisted": [
+          78,
+          71,
+          193
+        ],
         "quest_rewards_tested": false,
         "receipt_sha256": "e42275fe8c16d1eff0f30d14d8d415be1fcc117c745f3ee2a7a4a5368eb182f1",
         "log_sha256": "523a12916bdb3cd1adb6eab7c3868027a3f951966b204fabc1eebb21de270ffd"
@@ -400,7 +428,7 @@
           103,
           114
         ],
-        "loot_seed": 5264095528891668362
+        "loot_seed": 5264095528891668000
       },
       "interface_key": "K",
       "interface_scope": "integrated single-player owner",
@@ -542,6 +570,15 @@
           "outputs/native-stage-10-dragon-0.9.0/launcher-play-click-20261113.png",
           "outputs/native-stage-10-dragon-0.9.0/launcher-play-result-20261113.png"
         ]
+      },
+      "clean_release_acceptance": {
+        "status": "partial",
+        "binary_sha256": "3c6f5cb243635fb2aaeb2164ea11d217f0bec6eb99bb3a1adea5d3ca6a667303",
+        "installed_sha256_matches": true,
+        "pack_checks_passed": 78,
+        "enabled_mod_content_count": 3,
+        "gameplay": "pending",
+        "blocker": "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
       }
     }
   },
@@ -555,12 +592,12 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Дождаться release-сборки чистого клиента (python scripts/build-dragonfyre-native.py --applied outputs/native-reproduction/dragonfyre-native-0_6jcdcu/applied), установить horizon-client-release.exe в horizon-launcher/versions/dragonfyre и провести финальную приёмку на Stage10DragonPack: Looting-убийство с числами выше базовых максимумов, подбор дропов, сохранение/перезапуск, загрузка обоих пакетов и регистрация предметов, повторная проверка рецепта (две стопки blaze_powder). Затем обновить документы и опубликовать чекпоинт.",
+  "next_task": "На установленном чистом release-клиенте открыть тестовую копию Stage10DragonPack с пакетами Cisco 0.9.0 и Iron's Spellbooks. Проверить регистрацию предметов и крафт с двумя отдельными стопками blaze_powder, затем убить дракона с Looting III, измерить дроп (базовые максимумы 10/45), подобрать его, сохранить мир и сверить инвентарь после перезапуска. При недоступном horizon-ctl выполнить игровой сценарий вручную. Обычный запуск через «Играть» и натуральный survival E2E остаются отдельными проверками.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T07:45:00+05:00",
+    "updated_at": "2026-11-13T20:58:36+05:00",
     "status": "PARTIAL",
-    "active_task": "Stage 10: нативный лут Эндер-дракона (dragonskin/arcane_essence с бонусом Looting) и оригинальный рецепт true_dragons_breath. Проверено в Horizon на диагностическом клиенте; финальная приёмка — на чистой release-сборке (сборка идёт).",
+    "active_task": "Stage 10: чистый release-клиент собран и установлен; остаётся игровая приёмка рецепта и лута Эндер-дракона.",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
@@ -590,7 +627,8 @@
       "Сеанс 2026-11-12: данные Cisco.zs (строки 102–114) и правила additional_dragon_loot записаны с SHA-256 в docs/STAGE10-DRAGON-SOURCES.md (REPORTED, переданы владельцем). Временный рецепт заменён оригинальным бесформенным (4 драконьи кожи, дыхание, 2 огненных порошка), пакет Cisco 0.9.0. Добавлен пакет irons_spellbooks: предметы dragonskin и arcane_essence (внешний вид — заменители, PARTIAL), таблица additional_dragon_loot с двумя независимыми пулами и подключение к minecraft:entities/ender_dragon без условий (предположение). PARTIAL: в Horizon не загружалось.",
       "Сеанс 2026-11-13 (Windows): лут Эндер-дракона подключён нативно — loot_table_load v1 подгружает пул, drop_loot бросает таблицу один раз при смерти (tick_dragon_death при death_time==0 с кредитом игрока; kill_dragon при death_time==0 без кредита для /kill). Диагностический лог убран из dragon_loot.rs; scripts/apply-dragonfyre-native.py → outputs/native-reproduction/dragonfyre-native-0_6jcdcu: ok, 15 инъекций / 8 модулей, 0 расхождений с GitHub-исходниками.",
       "VERIFIED в Horizon 2026-11-13 (диагностический клиент e7aab6a9…, мир Stage10DragonPack, оба пакета 1187f30e…/1eb55503… загружены): крафт true_dragons_breath на верстаке (−4 кожи, −1 дыхания, −2 порошка → +1, остаток стеклянная бутылка); первая Looting III-убийство дракона реальными кликами: 15 кож и 46 эссенции — выше базовых максимумов 10/45, один бросок на смерть, дропы подняты и пережили save/quit/relaunch.",
-      "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44)."
+      "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44).",
+      "Чистый release-клиент собран (код выхода 0) и установлен в профиль Dragonfyre; SHA-256 установленного файла совпал с отчётом сборки."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -615,7 +653,8 @@
       "Регрессии на рабочем дереве с изменениями: cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.97.0, Linux); work/package_stage07_items.py → Dragonfyre-cisco_mod.hmod 6 файлов и Dragonfyre-farmersdelight.hmod 4 файла, без изменений.",
       "НЕ выполнялось: сборка Dragonfyre-cisco_mod.hmod 0.9.0 (в облачной среде нет cisco_mod_legacy_2.5.jar), check_dragonfyre_survival_pack.rs (нужны крейты Horizon), загрузка пакетов в Horizon, игровой запуск. Хеш пакета 0.9.0 не получен. Код подключения additional_dragon_loot в Iron's Spellbooks не прочитан: страницы исходников закрыты для автоматических запросов (robots_disallowed), обход не применялся.",
       "2026-11-13: work/check_dragonfyre_dragon_pack.py с Dragonfyre-cisco_mod.hmod → 78 проверок OK (exit 0); quest engine cargo test --locked --offline → 34/34; horizon-mixin.toml e714d801… (15 инъекций / 8 модулей); хеши пакетов 1187f30e… (Cisco) и 1eb55503… (Iron's) подтверждены, установленные копии в профиле совпадают.",
-      "2026-11-13: крафт и бросок лута проверены в игре на диагностическом клиенте e7aab6a9… (мир Stage10DragonPack, HORIZON_NO_AUDIO=1); бэкап мира перед тестами 52f541a0…; инвентарь после рестарта восстановлен."
+      "2026-11-13: крафт и бросок лута проверены в игре на диагностическом клиенте e7aab6a9… (мир Stage10DragonPack, HORIZON_NO_AUDIO=1); бэкап мира перед тестами 52f541a0…; инвентарь после рестарта восстановлен.",
+      "Get-FileHash: чистая release-сборка и установленный клиент → 3c6f5cb243635fb2aaeb2164ea11d217f0bec6eb99bb3a1adea5d3ca6a667303. Хеши двух установленных hmod совпали. Проверка пакета Cisco и хуков → 78/78. Журнал чистого клиента с тестовой копией и включёнными модами: content from 3 mod(s)."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
@@ -623,9 +662,8 @@
       "Clean bootstrap Horizon + mixins из pinned upstream не верифицирован — Issue #2.",
       "GUI-запуск через лаунчер: «Играть» требует входа в Microsoft-аккаунт (воспроизведено CLI horizon-launcher play), скриптованные клики по GPUI-окну не регистрируются. Тестовые запуски — установленным клиентом через horizon-ctl.",
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
-      "Условия повторного убийства дракона в оригинале неизвестны: код подключения additional_dragon_loot в Iron's Spellbooks 3.16.2 не прочитан (jar только у владельца). Порт бросает лут без условий — предположение об оригинале при проверенной работоспособности в Horizon.",
-      "Финальную приёмку чистой release-сборки (сборка в процессе) проводит агент на этом ПК; Stage 10 остаётся PARTIAL до её публикации."
+      "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Дождаться release-сборки чистого клиента (python scripts/build-dragonfyre-native.py --applied outputs/native-reproduction/dragonfyre-native-0_6jcdcu/applied), установить horizon-client-release.exe в horizon-launcher/versions/dragonfyre и провести финальную приёмку на Stage10DragonPack: Looting-убийство с числами выше базовых максимумов (10/45), подбор, сохранение/перезапуск, загрузка обоих пакетов, повторная проверка рецепта (две стопки blaze_powder). Затем обновить CURRENT_STATUS.md / docs/STAGE10-DRAGON-SOURCES.md / этот handoff и опубликовать."
+    "next_action": "На установленном чистом release-клиенте открыть тестовую копию Stage10DragonPack с пакетами Cisco 0.9.0 и Iron's Spellbooks. Проверить регистрацию предметов и крафт с двумя отдельными стопками blaze_powder, затем убить дракона с Looting III, измерить дроп (базовые максимумы 10/45), подобрать его, сохранить мир и сверить инвентарь после перезапуска. При недоступном horizon-ctl выполнить игровой сценарий вручную. Обычный запуск через «Играть» и натуральный survival E2E остаются отдельными проверками."
   }
 }
