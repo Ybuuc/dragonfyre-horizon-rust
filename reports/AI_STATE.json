@@ -621,10 +621,10 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Собрать клиент из port/nether-quartz-quests с переиспользованием Cargo target, затем после резервной копии обновить существующий профиль Dragonfyre. Передать владельцу сценарий Обсидиан → Нижний мир → Кварц для запуска через Horizon Offline Launcher → Dragonfyre → Играть.",
+  "next_task": "Установить готовый release-клиент через локальный Install-Dragonfyre-Quest-Update.ps1 из обычного PowerShell пользователя. Запись в каталог существующего профиля из сессии Codex отклонена. Затем принять цепочку Обсидиан → Нижний мир → Кварц через Horizon Offline Launcher → Dragonfyre → Играть.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T22:03:15+05:00",
+    "updated_at": "2026-11-13T23:15:35+05:00",
     "status": "PARTIAL",
     "active_task": "FTB Quests: ветка Обсидиан → Нижний мир → Кварц",
     "related_issues": [
@@ -659,7 +659,8 @@
       "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44).",
       "Чистый release-клиент собран (код выхода 0) и установлен в профиль Dragonfyre; SHA-256 установленного файла совпал с отчётом сборки.",
       "По исходным SNBT проверены 21 глава и 461 уникальный квест. Найдены 368 задач типа item, 96 kill и 7 других типов. У 225 квестов есть зависимости, все указанные ID разрешаются. Команда: python work/audit_ftb_quests.py <папка chapters>. Это инвентаризация исходников для переноса.",
-      "В рабочей ветке подключены исходные задачи входа в Нижний мир и получения кварца, сохранены зависимости, ID и награды. Клиент Horizon с этими изменениями ещё не собран."
+      "В рабочей ветке подключены исходные задачи входа в Нижний мир и получения кварца, сохранены зависимости, ID и награды. Клиент Horizon с этими изменениями ещё не собран.",
+      "Release-клиент с веткой port/nether-quartz-quests собран и прошёл запуск --help. SHA-256 EE8A09B0414CD14C94D3C3747440FA7E21A5F7011DBDE1BFEA00C86513BCA152."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -700,7 +701,7 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Собрать клиент из port/nether-quartz-quests с переиспользованием Cargo target, затем после резервной копии обновить существующий профиль Dragonfyre. Передать владельцу сценарий Обсидиан → Нижний мир → Кварц для запуска через Horizon Offline Launcher → Dragonfyre → Играть.",
+    "next_action": "Установить готовый release-клиент через локальный Install-Dragonfyre-Quest-Update.ps1 из обычного PowerShell пользователя. Запись в каталог существующего профиля из сессии Codex отклонена. Затем принять цепочку Обсидиан → Нижний мир → Кварц через Horizon Offline Launcher → Dragonfyre → Играть.",
     "manual_acceptance": {
       "owner": "Пользователь",
       "stage10_status": "PARTIAL",
