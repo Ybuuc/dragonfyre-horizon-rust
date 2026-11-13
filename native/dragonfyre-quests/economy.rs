@@ -95,14 +95,18 @@ pub fn enqueue(game: &Game<'_>, actor: u128, quest: u64, kind: u8, slot: u64) {
         QUEUE.lock().unwrap().push(Request { world, actor, quest, kind, slot, reply: None });
     }
 }
-pub const JOURNAL_QUESTS: [u64; 3] = [
+pub const JOURNAL_QUESTS: [u64; 6] = [
     0x5AFA5CB101E31BE4,
     0x288608ED892DC5EB,
     economy::HAM_EXCHANGE,
+    0x643A6BD7BE518653,
+    0x7D59BD1308E6778F,
+    0x3E13EB56EE51145F,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum JournalState {
+    Locked,
     Collect,
     Submit,
     Claim,
@@ -118,7 +122,7 @@ pub struct JournalRow {
 }
 
 pub struct Journal {
-    pub rows: [JournalRow; 3],
+    pub rows: [JournalRow; JOURNAL_QUESTS.len()],
     pub exchanges: u64,
 }
 
@@ -151,21 +155,23 @@ pub fn journal(game: &mut Game<'_>) -> Result<Journal, String> {
     let exchanges = store.records.iter().filter(|r| r.quest == economy::HAM_EXCHANGE && r.kind == 1)
         .map(|r| r.task).max().unwrap_or(0);
     let cycle = exchanges.checked_add(1).ok_or("exchange cycle overflow")?;
-    let item_row = |quest: u64, item: &str| {
+    let quest_row = |quest: u64, count: u64| {
         let state = if store.has(1, quest, 0) {
             JournalState::Claimed
         } else if progress.complete(quest) {
             JournalState::Claim
+        } else if matches!(progress.status(quest), Ok(engine::command::Reply::Locked)) {
+            JournalState::Locked
         } else {
             JournalState::Collect
         };
-        JournalRow { quest, cycle: 0, count: amount(item, false), state }
+        JournalRow { quest, cycle: 0, count, state }
     };
     let coins = amount("cisco_mod:champion_coin", true);
     Ok(Journal {
         rows: [
-            item_row(JOURNAL_QUESTS[0], "cisco_mod:radiant_ruby"),
-            item_row(JOURNAL_QUESTS[1], "cisco_mod:divine_core"),
+            quest_row(JOURNAL_QUESTS[0], amount("cisco_mod:radiant_ruby", false)),
+            quest_row(JOURNAL_QUESTS[1], amount("cisco_mod:divine_core", false)),
             JournalRow {
                 quest: economy::HAM_EXCHANGE, cycle, count: coins,
                 state: if store.has(2, economy::HAM_EXCHANGE, cycle) {
@@ -176,6 +182,9 @@ pub fn journal(game: &mut Game<'_>) -> Result<Journal, String> {
                     JournalState::Collect
                 },
             },
+            quest_row(JOURNAL_QUESTS[3], amount("minecraft:obsidian", false)),
+            quest_row(JOURNAL_QUESTS[4], 0),
+            quest_row(JOURNAL_QUESTS[5], amount("minecraft:quartz", false)),
         ],
         exchanges,
     })
