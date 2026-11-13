@@ -8,8 +8,8 @@ use std::{
 
 const MOD: &str = "dragonfyre_quests";
 const WIDTH: f32 = 360.0;
-const HEIGHT: f32 = 196.0;
-const ROWS: [f32; 3] = [37.0, 81.0, 125.0];
+const HEIGHT: f32 = 318.0;
+const ROWS: [f32; economy::JOURNAL_QUESTS.len()] = [37.0, 77.0, 117.0, 157.0, 197.0, 237.0];
 const GOLD: u32 = 0xf1c46c;
 const LIGHT: u32 = 0xf6eee0;
 const MUTED: u32 = 0xbdb2a4;
@@ -180,7 +180,11 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             let (title, icon, required, reward) = match index {
                 0 => ("ruby", "cisco_mod:radiant_ruby", 1, "reward_three"),
                 1 => ("core", "cisco_mod:divine_core", 1, "reward_two"),
-                _ => ("trade", "farmersdelight:honey_glazed_ham", 2, "reward_ham"),
+                2 => ("trade", "farmersdelight:honey_glazed_ham", 2, "reward_ham"),
+                3 => ("obsidian", "minecraft:obsidian", 1, "reward_obsidian"),
+                4 => ("nether", "minecraft:blaze_rod", 1, "reward_nether"),
+                5 => ("quartz", "minecraft:quartz", 1, "reward_quartz"),
+                _ => unreachable!(),
             };
             game.native_item(batch, icon, [15.0, y + 10.0], 17.0);
             game.native_text(batch, text(game, title), [39.0, y + 5.0], LIGHT, false);
@@ -191,11 +195,15 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             let detail = format!("{count}/{required}  ·  {}", text(game, reward));
             game.native_text(batch, &detail, [39.0, y + 16.0], MUTED, false);
             let status = match row.state {
+                JournalState::Locked => "locked",
+                JournalState::Collect if index == 4 => "enter_nether",
                 JournalState::Collect => "collect",
                 JournalState::Submit => "ready_submit",
                 JournalState::Claim => "ready_claim",
                 JournalState::Claimed => {
-                    completed += 1;
+                    if row.quest != economy::JOURNAL_QUESTS[2] {
+                        completed += 1;
+                    }
                     "claimed"
                 }
             };
@@ -213,13 +221,13 @@ pub(super) fn draw(game: &Game<'_>, batch: &mut HudBatch, screen: &NativeScreenV
             button(game, batch, button_rect(index, 1), mouse, text(game, "claim"),
                    active && row.state == JournalState::Claim);
         }
-        let totals = format!("{completed}/2  ·  {} {}", text(game, "exchanges"), view.exchanges);
-        game.native_text(batch, &totals, [14.0, 171.0], MUTED, false);
+        let totals = format!("{completed}/{}  ·  {} {}", view.rows.len() - 1, text(game, "exchanges"), view.exchanges);
+        game.native_text(batch, &totals, [14.0, 282.0], MUTED, false);
     }
     let status = if client.pending.is_some() { Some("working") }
         else { client.notice.or(if client.view.is_none() { Some("loading") } else { None }) };
     if let Some(key) = status {
-        game.native_text(batch, text(game, key), [14.0, 184.0], LIGHT, false);
+        game.native_text(batch, text(game, key), [14.0, 296.0], LIGHT, false);
     }
     for vertex in &mut batch.vertices[start..] {
         vertex.pos[0] = layout.x + vertex.pos[0] * layout.scale;
