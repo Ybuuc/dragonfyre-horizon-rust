@@ -621,19 +621,19 @@
     "Horizon Offline Launcher GUI Play requires a Microsoft account that owns Minecraft: Java Edition (reproduced via CLI 2026-11-13); scripted Win32 clicks do not register on the GPUI window, so test runs use the installed client via horizon-ctl.",
     "Stale killing-blow credit on repeated Ender Dragon kills (client/server invulnerability desync) sometimes rolls the base loot without the Looting bonus; the kill is retried until the credit is fresh."
   ],
-  "next_task": "Расширить нативный каталог FTB Quests на первую группу связанных заданий с типом item, сохранив исходные ID, условия, зависимости и награды. Начать с заданий, предметы которых уже зарегистрированы в Horizon. Прогнать тесты квестового движка и проверить, что старые сохранения по-прежнему открываются.",
+  "next_task": "Собрать отдельный тестовый клиент Horizon из port/nether-quartz-quests с переиспользованием Cargo target, затем передать владельцу сценарий Обсидиан → Нижний мир → Кварц.",
   "synced_report_source": "Local verification 2026-11-08: offline Cargo tests, Horizon package and loot probe, SHA-256 of Debug and Cisco 0.8.0. CURRENT_STATUS.md and STAGE10-SURVIVAL.md updated.",
   "handoff": {
-    "updated_at": "2026-11-13T21:48:22+05:00",
+    "updated_at": "2026-11-13T21:53:15+05:00",
     "status": "PARTIAL",
-    "active_task": "Перенос основных глав FTB Quests в Rust/Horizon",
+    "active_task": "FTB Quests: ветка Обсидиан → Нижний мир → Кварц",
     "related_issues": [
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/1",
       "https://github.com/Ybuuc/dragonfyre-horizon-rust/issues/2"
     ],
     "work_ref": {
-      "branch": "main",
-      "commit": "813bcf2ec944827a76570ec5cdd6ef9a7e0f61e0"
+      "branch": "port/nether-quartz-quests",
+      "commit": "7787515610549755411bf06fdc248e62f2116504"
     },
     "completed": [
       "Rust-ядро 0.4.0-dev: 34/34 unit-тестов из clean clone (d441a705) и повторно на рабочем коммите (55f181b).",
@@ -658,7 +658,8 @@
       "VERIFIED в Horizon 2026-11-13 (диагностический клиент e7aab6a9…, мир Stage10DragonPack, оба пакета 1187f30e…/1eb55503… загружены): крафт true_dragons_breath на верстаке (−4 кожи, −1 дыхания, −2 порошка → +1, остаток стеклянная бутылка); первая Looting III-убийство дракона реальными кликами: 15 кож и 46 эссенции — выше базовых максимумов 10/45, один бросок на смерть, дропы подняты и пережили save/quit/relaunch.",
       "Блокеры зафиксированы с свидетельствами: GUI-«Играть» лаунчера требует Microsoft-аккаунт (CLI-воспроизведение, скриншоты), скриптованные клики по GPUI-окну не регистрируются; устаревший кредит урона при повторных убийствах даёт базовый бросок (2 из 3 попыток: 8/32 и 7/44).",
       "Чистый release-клиент собран (код выхода 0) и установлен в профиль Dragonfyre; SHA-256 установленного файла совпал с отчётом сборки.",
-      "По исходным SNBT проверены 21 глава и 461 уникальный квест. Найдены 368 задач типа item, 96 kill и 7 других типов. У 225 квестов есть зависимости, все указанные ID разрешаются. Команда: python work/audit_ftb_quests.py <папка chapters>. Это инвентаризация исходников для переноса."
+      "По исходным SNBT проверены 21 глава и 461 уникальный квест. Найдены 368 задач типа item, 96 kill и 7 других типов. У 225 квестов есть зависимости, все указанные ID разрешаются. Команда: python work/audit_ftb_quests.py <папка chapters>. Это инвентаризация исходников для переноса.",
+      "В рабочей ветке подключены исходные задачи входа в Нижний мир и получения кварца, сохранены зависимости, ID и награды. Клиент Horizon с этими изменениями ещё не собран."
     ],
     "verification": [
       "cargo test --manifest-path native/dragonfyre-quests/engine/Cargo.toml --locked --offline → 34 passed, 0 failed (Cargo 1.99.1, host x86_64-pc-windows-gnu).",
@@ -688,7 +689,8 @@
       "Чистый release-клиент с `--quickPlaySingleplayer Stage10DragonPack --world-frames 120` вошёл в тестовую копию мира с тремя модами и завершился с кодом 0. `smoke.json`: `error: null`, 168 кадров, 117 чанков, 1683 зарегистрированных предмета по журналу загрузки. Звук выключен. Отдельная регистрация предметов пакетов, крафт, Looting III, подбор и проверка инвентаря после перезапуска остаются на приёмке.",
       "На чистом release-клиенте в творческой копии Stage10DragonPack проверены крафт True Dragon’s Breath с двумя отдельными стопками blaze_powder, остаток стеклянной бутылки и выдача Arcane Essence. Пользователь подтвердил сохранение инвентаря после полного перезапуска; чтение файла игрока подтвердило 1 True Dragon’s Breath, 6 Dragonskin и 29 Arcane Essence. При исходных 0 кожи и 1 эссенции прирост составил 6/28. Бонус Looting III на чистой сборке по этому выпадению не определён.",
       "scripts/qa-stage10.py: быстрый прогон прошёл 78/78; сверены SHA-256 клиента и пакетов, успешно прочитан инвентарь из сохранения.",
-      "Повторный `scripts/qa-stage10.py --mode smoke` после освобождения тестового мира прошёл с кодом 0. Проверка пакета 78/78 и сверка SHA-256 заняли 0,67 с, клиент — 62,91 с, включая 46,5 с на загрузку ресурсов. Отчёт: 156 кадров, 117 чанков, `error: null`. Сборка клиента не запускалась."
+      "Повторный `scripts/qa-stage10.py --mode smoke` после освобождения тестового мира прошёл с кодом 0. Проверка пакета 78/78 и сверка SHA-256 заняли 0,67 с, клиент — 62,91 с, включая 46,5 с на загрузку ресурсов. Отчёт: 156 кадров, 117 чанков, `error: null`. Сборка клиента не запускалась.",
+      "Изолированный cargo test --locked --offline: 35/35, включая блокировку кварца до входа в Нижний мир и повторное открытие журнала прогресса."
     ],
     "blockers": [
       "Натуральная добыча всех ингредиентов (без pre-stage) не верифицирована — основной блокер Issue #1.",
@@ -698,7 +700,7 @@
       "Устаревший кредит урона при повторных убийствах Эндер-дракона (рассинхрон неуязвимости клиент/сервер) иногда даёт базовый бросок без бонуса Looting; убийство повторяют до свежего кредита.",
       "В текущей Windows-среде horizon-ctl не смог подключиться к локальному сокету (OS 10013), а доступ к окну Horizon завершился ошибкой foreground window did not report a process id."
     ],
-    "next_action": "Расширить нативный каталог FTB Quests на первую группу связанных заданий с типом item, сохранив исходные ID, условия, зависимости и награды. Начать с заданий, предметы которых уже зарегистрированы в Horizon. Прогнать тесты квестового движка и проверить, что старые сохранения по-прежнему открываются.",
+    "next_action": "Собрать отдельный тестовый клиент Horizon из port/nether-quartz-quests с переиспользованием Cargo target, затем передать владельцу сценарий Обсидиан → Нижний мир → Кварц.",
     "manual_acceptance": {
       "owner": "Пользователь",
       "stage10_status": "PARTIAL",
